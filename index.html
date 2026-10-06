@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soporte Claro & Indra</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Configuración de Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            claro: {
+              DEFAULT: '#DA291C',
+              dark: '#B71C1C',
+              light: '#EF4444',
+              soft: '#FEE2E2',
+              glow: 'rgba(218, 41, 28, 0.15)'
+            },
+            indra: {
+              navy: '#002E3B',
+              teal: '#007A87',
+              gray: '#4A5568'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          boxShadow: {
+            'card': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03)',
+            'card-hover': '0 20px 30px -10px rgba(218, 41, 28, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.04)',
+            'decision': '0 12px 28px rgba(218, 41, 28, 0.25)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Estilos Custom -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="min-h-screen flex flex-col custom-scrollbar">
+
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-6">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="resetToHome()">
+          <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-red-700 via-claro to-red-500 flex items-center justify-center shadow-md shadow-claro/20 text-white font-extrabold text-2xl tracking-tighter">
+            C<span class="text-xs -mt-2">!</span>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-2xl font-black text-claro tracking-tight">Claro<span class="text-slate-800 text-sm font-semibold tracking-normal ml-1">Soporte Hogar</span></span>
+              <span class="bg-red-100 text-claro text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border border-red-200">Mesa Técnica</span>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium">Gestión de Flujogramas Operativos HFC / FTTH / OTT</p>
+          </div>
+        </div>
+
+        <div class="hidden md:block h-7 w-px bg-slate-200"></div>
+
+        <div class="hidden md:flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+          <svg class="w-5 h-5 text-indra-navy" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M10 20 L40 50 L10 80 L25 80 L50 55 L75 80 L90 80 L60 50 L90 20 L75 20 L50 45 L25 20 Z"/>
+          </svg>
+          <div class="leading-none">
+            <span class="text-xs font-black tracking-widest text-indra-navy">INDRA</span>
+            <span class="text-[9px] text-slate-400 block font-semibold">Tecnología de Operación</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hidden lg:flex items-center space-x-4 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600">
+        <div class="flex items-center space-x-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+          <span>45 Flujos Oficiales:</span>
+        </div>
+        <div class="flex space-x-3 text-[11px]">
+          <span class="text-claro font-bold">21 Internet</span>
+          <span class="text-slate-300">|</span>
+          <span class="text-indigo-600 font-bold">9 Telefonía</span>
+          <span class="text-slate-300">|</span>
+          <span class="text-emerald-700 font-bold">9 TV</span>
+          <span class="text-slate-300">|</span>
+          <span class="text-amber-600 font-bold">6 OTT</span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <button onclick="openTipsModal()" class="flex items-center space-x-2 bg-red-50 hover:bg-red-100 text-claro border border-red-200 px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm">
+          <svg class="w-4 h-4 text-claro" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span class="hidden sm:inline">Guía Rápida & Comandos</span>
+        </button>
+
+        <div class="flex items-center space-x-2.5 bg-white border border-slate-200 rounded-full pl-1 pr-3 py-1 shadow-sm">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center text-white text-base shadow">
+            👷
+          </div>
+          <div class="text-left leading-none">
+            <span class="text-xs font-bold text-slate-800 block">Ing</span>
+            <span class="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Online
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- Hero / Welcome Banner -->
+    <div class="bg-gradient-to-r from-indra-navy via-slate-900 to-indra-navy rounded-3xl p-6 sm:p-8 text-white mb-8 shadow-xl relative overflow-hidden border border-slate-700">
+      <div class="absolute -right-16 -top-16 w-80 h-80 bg-claro/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute right-1/4 -bottom-16 w-60 h-60 bg-teal-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+      <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold text-red-200 mb-3">
+            <span class="w-2 h-2 rounded-full bg-claro"></span> Soporte Técnico Avanzado
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            Asistente Interactivo de <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-rose-300">Flujogramas Técnicos</span>
+          </h1>
+          <p class="mt-2 text-slate-300 text-sm sm:text-base leading-relaxed">
+            Diagnostica paso a paso con las decisiones de los diagramas oficiales: 
+            <strong>Internet, Telefonía Fija, Televisión Digital e IPTV, y plataformas OTT</strong>. 
+            Haz clic en las opciones para avanzar hasta la solución o tipificación de visita técnica.
+          </p>
+
+          <div class="mt-6 flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+              <input type="text" id="flowSearchInput" placeholder="Buscar flujo (ej: ONT fuera de línea, Sin señal, Derivación, Netflix...)" 
+                     class="w-full bg-white/10 backdrop-blur border border-white/20 text-white placeholder-slate-400 text-sm rounded-xl px-4 py-3 pl-11 focus:outline-none focus:ring-2 focus:ring-claro focus:bg-white/20 transition">
+              <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <button onclick="clearSearch()" class="px-4 py-3 bg-white/15 hover:bg-white/25 text-white text-xs font-bold rounded-xl transition border border-white/20">
+              Limpiar Filtros
+            </button>
+          </div>
+        </div>
+
+        <div class="flex-shrink-0 flex flex-col items-center">
+          <div class="relative floating-engineer">
+            <div class="w-36 h-36 sm:w-44 sm:h-44 bg-gradient-to-b from-red-500/20 to-red-950/40 rounded-full p-2 flex items-center justify-center border-2 border-red-500/40 shadow-inner">
+              <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-xl">
+                <ellipse cx="100" cy="62" rx="46" ry="18" fill="#DA291C"/>
+                <path d="M56 60 Q100 20 144 60 Z" fill="#DA291C"/>
+                <path d="M58 55 Q100 28 142 55" stroke="#FFFFFF" stroke-width="3" fill="none" opacity="0.4"/>
+                <rect x="90" y="32" width="20" height="9" rx="3" fill="#FFFFFF"/>
+                <circle cx="100" cy="36.5" r="2.5" fill="#DA291C"/>
+                <ellipse cx="100" cy="85" rx="32" ry="34" fill="#FFDFC4"/>
+                <circle cx="68" cy="85" r="7" fill="#F0C5A8"/>
+                <circle cx="132" cy="85" r="7" fill="#F0C5A8"/>
+                <path d="M68 70 Q75 60 85 64" stroke="#4A3728" stroke-width="6" stroke-linecap="round"/>
+                <path d="M132 70 Q125 60 115 64" stroke="#4A3728" stroke-width="6" stroke-linecap="round"/>
+                <path d="M80 73 Q87 69 94 73" stroke="#4A3728" stroke-width="3" stroke-linecap="round"/>
+                <path d="M106 73 Q113 69 120 73" stroke="#4A3728" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="87" cy="82" r="5" fill="#1E293B"/>
+                <circle cx="88.5" cy="80.5" r="1.5" fill="#FFFFFF"/>
+                <circle cx="113" cy="82" r="5" fill="#1E293B"/>
+                <circle cx="114.5" cy="80.5" r="1.5" fill="#FFFFFF"/>
+                <path d="M98 84 Q100 90 103 89" stroke="#E0A985" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                <path d="M88 97 Q100 108 112 97" stroke="#991B1B" stroke-width="3" fill="#FFFFFF" stroke-linecap="round"/>
+                <path d="M90 115 L90 125 L110 125 L110 115 Z" fill="#FFDFC4"/>
+                <path d="M65 130 Q100 120 135 130 L145 190 Q100 195 55 190 Z" fill="#DA291C"/>
+                <polygon points="100,140 85,124 100,128" fill="#FFFFFF"/>
+                <polygon points="100,140 115,124 100,128" fill="#F1F5F9"/>
+                <rect x="74" y="148" width="22" height="10" rx="2" fill="#FFFFFF"/>
+                <text x="76" y="156" font-size="6" font-weight="bold" fill="#DA291C" font-family="Arial">Juan</text>
+                <path d="M90 128 L85 160" stroke="#002E3B" stroke-width="2"/>
+                <path d="M110 128 L115 160" stroke="#002E3B" stroke-width="2"/>
+                <rect x="110" y="160" width="16" height="22" rx="2" fill="#FFFFFF" stroke="#002E3B" stroke-width="1.5"/>
+                <rect x="113" y="163" width="10" height="7" fill="#007A87"/>
+                <line x1="113" y1="174" x2="123" y2="174" stroke="#94A3B8" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div class="absolute -bottom-2 bg-claro text-white text-[11px] font-black px-3 py-0.5 rounded-full border-2 border-slate-900 shadow">
+              INGENIERO STA
+            </div>
+          </div>
+          <div id="engineerSpeechBubble" class="mt-3 bg-white text-slate-800 text-xs font-semibold px-4 py-2.5 rounded-2xl shadow-lg border border-slate-200 max-w-[240px] text-center relative">
+            <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white rotate-45 border-l border-t border-slate-200"></div>
+            <span id="speechText">¡Hola! Selecciona un flujo para iniciar el diagnóstico interactivo.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Selector -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div onclick="selectCategory('internet')" id="catBtn-internet" 
+           class="category-card cursor-pointer group bg-white rounded-2xl p-5 border-2 border-claro shadow-sm hover:shadow-card-hover transition-all duration-300 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-12 h-12 rounded-xl bg-red-50 text-claro group-hover:bg-claro group-hover:text-white transition flex items-center justify-center">
+            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="13" width="20" height="8" rx="2"></rect>
+              <line x1="6" y1="17" x2="6.01" y2="17"></line>
+              <line x1="10" y1="17" x2="10.01" y2="17"></line>
+              <line x1="14" y1="17" x2="14.01" y2="17"></line>
+              <path d="M5 9a7 7 0 0 1 14 0"></path>
+              <path d="M8.5 11.5a3.5 3.5 0 0 1 7 0"></path>
+            </svg>
+          </div>
+          <span class="bg-red-100 text-claro font-bold text-xs px-2.5 py-1 rounded-full">21 Flujos</span>
+        </div>
+        <h3 class="text-base font-bold text-slate-800 group-hover:text-claro transition">Internet HFC / FTTH</h3>
+        <p class="text-xs text-slate-500 mt-1">Niveles, WiFi 2.4/5GHz, Ultra WiFi, PING, TR69, Desenganche.</p>
+        <div class="mt-3 flex items-center text-xs font-semibold text-claro">
+          <span>Explorar árboles</span>
+          <svg class="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </div>
+      </div>
+
+      <div onclick="selectCategory('telefonia')" id="catBtn-telefonia" 
+           class="category-card cursor-pointer group bg-white rounded-2xl p-5 border-2 border-transparent hover:border-slate-300 shadow-sm hover:shadow-card-hover transition-all duration-300 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition flex items-center justify-center">
+            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+          </div>
+          <span class="bg-indigo-100 text-indigo-700 font-bold text-xs px-2.5 py-1 rounded-full">9 Flujos</span>
+        </div>
+        <h3 class="text-base font-bold text-slate-800 group-hover:text-indigo-600 transition">Telefonía Fija</h3>
+        <p class="text-xs text-slate-500 mt-1">Línea sin tono, sin llamadas in/out, derivaciones Claro, ruido/voz.</p>
+        <div class="mt-3 flex items-center text-xs font-semibold text-indigo-600">
+          <span>Explorar árboles</span>
+          <svg class="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </div>
+      </div>
+
+      <div onclick="selectCategory('tv')" id="catBtn-tv" 
+           class="category-card cursor-pointer group bg-white rounded-2xl p-5 border-2 border-transparent hover:border-slate-300 shadow-sm hover:shadow-card-hover transition-all duration-300 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition flex items-center justify-center">
+            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+              <polyline points="17 2 12 7 7 2"></polyline>
+            </svg>
+          </div>
+          <span class="bg-emerald-100 text-emerald-700 font-bold text-xs px-2.5 py-1 rounded-full">9 Flujos</span>
+        </div>
+        <h3 class="text-base font-bold text-slate-800 group-hover:text-emerald-600 transition">Televisión Digital & TVBox</h3>
+        <p class="text-xs text-slate-500 mt-1">Sin señal DVB/ITV, pixelación, deco bloqueado o en bucle, guía, tarjetas.</p>
+        <div class="mt-3 flex items-center text-xs font-semibold text-emerald-600">
+          <span>Explorar árboles</span>
+          <svg class="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </div>
+      </div>
+
+      <div onclick="selectCategory('ott')" id="catBtn-ott" 
+           class="category-card cursor-pointer group bg-white rounded-2xl p-5 border-2 border-transparent hover:border-slate-300 shadow-sm hover:shadow-card-hover transition-all duration-300 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition flex items-center justify-center">
+            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </div>
+          <span class="bg-amber-100 text-amber-700 font-bold text-xs px-2.5 py-1 rounded-full">6 Flujos</span>
+        </div>
+        <h3 class="text-base font-bold text-slate-800 group-hover:text-amber-600 transition">Plataformas OTT</h3>
+        <p class="text-xs text-slate-500 mt-1">Netflix, Amazon Prime, Claro video, Bundle vs Stand-alone, Mi Claro.</p>
+        <div class="mt-3 flex items-center text-xs font-semibold text-amber-600">
+          <span>Explorar árboles</span>
+          <svg class="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flows List Section -->
+    <div id="flowSelectionSection" class="bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-slate-200 mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+        <div>
+          <span id="categoryBadge" class="inline-block px-3 py-1 bg-red-100 text-claro font-bold text-xs rounded-full uppercase tracking-wider mb-1">
+            Internet (21 Flujos)
+          </span>
+          <h2 id="categoryTitle" class="text-xl font-extrabold text-slate-800">Selecciona el Escenario o Síntoma</h2>
+        </div>
+        <div class="text-xs text-slate-500 font-medium">
+          Mostrando <span id="flowCounter" class="font-bold text-slate-800">21</span> flujos disponibles
+        </div>
+      </div>
+
+      <div id="flowsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 mt-5"></div>
+    </div>
+
+    <!-- Flow Active Arena -->
+    <div id="flowActiveArena" class="hidden bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden mb-8 transition-all">
+      <div class="bg-gradient-to-r from-slate-900 to-indra-navy p-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center space-x-4">
+          <div id="arenaServiceIcon" class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-2xl border border-white/20">
+            🌐
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="arenaCategoryTag" class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-claro text-white">INTERNET</span>
+              <span id="arenaFlowCode" class="text-[11px] text-slate-400 font-mono">FLOW-INT-01</span>
+            </div>
+            <h2 id="arenaFlowTitle" class="text-xl sm:text-2xl font-black text-white">Sin Navegación FTTH Niveles OK</h2>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="restartCurrentFlow()" class="px-3 py-2 bg-white/10 hover:bg-white/20 text-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            Reiniciar Flujo
+          </button>
+          <button onclick="closeActiveFlow()" class="px-3 py-2 bg-red-600/80 hover:bg-claro text-white rounded-xl text-xs font-bold transition">
+            ✕ Cerrar
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 px-6 py-3 border-b border-slate-200 flex items-center space-x-2 overflow-x-auto text-xs font-medium text-slate-500 custom-scrollbar">
+        <span class="text-slate-400 font-semibold">Ruta:</span>
+        <div id="breadcrumbsList" class="flex items-center space-x-2 whitespace-nowrap"></div>
+      </div>
+
+      <div class="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="lg:col-span-7 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span id="stepTypeBadge" class="px-3 py-1 rounded-full text-xs font-black tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">
+                Paso de Validación
+              </span>
+              <span id="stepCounterBadge" class="text-xs font-mono font-bold text-slate-400">Paso 1</span>
+            </div>
+
+            <div id="stepCardContainer" class="p-6 rounded-2xl bg-gradient-to-b from-white to-slate-50 border-2 border-slate-200 shadow-sm min-h-[220px] flex flex-col justify-center">
+              <h3 id="stepInstructionTitle" class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug"></h3>
+              <div id="stepDetailsList" class="mt-3 text-sm text-slate-600 space-y-2 leading-relaxed"></div>
+              <div id="stepCommandBox" class="hidden mt-4 p-3 bg-slate-900 text-emerald-400 rounded-xl font-mono text-xs border border-slate-800 flex items-center justify-between">
+                <span id="stepCommandText">ping -t 192.168.1.1</span>
+                <button onclick="copyCommand()" class="text-slate-300 hover:text-white px-2 py-1 bg-slate-800 rounded text-[10px] font-sans font-bold">Copiar</button>
+              </div>
+            </div>
+
+            <div class="mt-4 p-4 rounded-xl bg-amber-50/70 border border-amber-200 flex items-start space-x-3">
+              <div class="text-xl">💡</div>
+              <div class="text-xs text-amber-900">
+                <span class="font-bold">Recomendación técnica del Ingeniero Claro:</span>
+                <p id="stepEngineerTip" class="mt-0.5 text-amber-800">
+                  Verifica que los cables estén bien ajustados antes de reiniciar cualquier componente físico.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-slate-200">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">¿Cuál es el resultado de la prueba o respuesta del cliente?</p>
+            <div id="stepActionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5"></div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 bg-slate-50 rounded-2xl p-5 border border-slate-200 flex flex-col">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+            <h4 class="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-2">
+              <svg class="w-4 h-4 text-claro" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+              Mapa Estructurado del Flujograma
+            </h4>
+            <span class="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-mono font-bold text-slate-600">Interactivo</span>
+          </div>
+          <div id="flowchartNodesTree" class="flex-1 overflow-y-auto max-h-[380px] space-y-2 pr-1 custom-scrollbar"></div>
+          <div class="mt-4 pt-4 border-t border-slate-200 text-[11px] text-slate-500">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-bold text-slate-700">Herramientas Operativas:</span>
+              <span class="font-mono text-[10px] text-emerald-600 font-bold">Xpertrak / TR69 / RR</span>
+            </div>
+            <p>Este flujo aplica a la norma técnica vigente de atención residencial y corporativa.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terminal Resolution Banner -->
+      <div id="terminalResultBanner" class="hidden border-t-2 border-dashed border-slate-300 bg-slate-900 text-white p-6 sm:p-8">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div class="max-w-2xl">
+            <div class="flex items-center gap-2 mb-2">
+              <span id="finalResultBadge" class="px-3 py-1 bg-emerald-500 text-white text-xs font-black rounded-full uppercase tracking-wider">
+                Solución Exitosa
+              </span>
+              <span class="text-xs text-slate-400 font-mono">Conclusión del Flujograma</span>
+            </div>
+            <h3 id="finalResultTitle" class="text-2xl font-black text-white leading-tight">
+              Documentar, tipificar y finalizar interacción con el cliente
+            </h3>
+            <p id="finalResultDesc" class="mt-2 text-slate-300 text-sm leading-relaxed">
+              El servicio ha quedado validado y en parámetros normales. Registra el código de cierre en la orden o CRM.
+            </p>
+            <div class="mt-4 bg-slate-800 p-3 rounded-xl border border-slate-700">
+              <div class="text-[11px] text-slate-400 font-bold mb-1 uppercase tracking-wider">Plantilla de Tipificación Rápida:</div>
+              <p id="tipificationText" class="font-mono text-xs text-amber-300 select-all"></p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 w-full md:w-auto">
+            <button onclick="copyTipification()" class="px-5 py-3 bg-claro hover:bg-red-700 text-white font-bold text-sm rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+              Copiar Tipificación
+            </button>
+            <button onclick="restartCurrentFlow()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl transition text-center">
+              Reintentar / Nuevo Caso
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Guía de referencia rápida -->
+    <section class="mt-8 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-slate-100 gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-claro">Referencia para Agentes e Ingenieros</span>
+          <h3 class="text-xl font-extrabold text-slate-900 mt-1">Guía Rápida de Umbrales Técnicos y Comandos</h3>
+        </div>
+        <div class="flex gap-2">
+          <span class="px-3 py-1 rounded-lg bg-red-50 text-claro text-xs font-bold">Xpertrak DW</span>
+          <span class="px-3 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-bold">TR-069 ACS</span>
+          <span class="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-800 text-xs font-bold">IP VoIP</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
+          <div class="flex items-center space-x-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-red-100 text-claro flex items-center justify-center font-bold text-lg">📡</div>
+            <h4 class="font-bold text-slate-800 text-sm">Internet & Fibra FTTH</h4>
+          </div>
+          <ul class="text-xs text-slate-600 space-y-2">
+            <li><strong>IP WAN:</strong> Validar que la ONT o CM tome IP WAN válida (no 0.0.0.0 ni enlace caído).</li>
+            <li><strong>Ping Test:</strong> Mínimo 50 paquetes. Pérdida &gt; 10% requiere descarte en físico o reiniciar equipo.</li>
+            <li><strong>WiFi 2.4 vs 5.0 GHz:</strong> Fijar canal en 1, 6 u 11 en 2.4 GHz. 5.0 GHz automático para altas velocidades (&gt;200Mb).</li>
+          </ul>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
+          <div class="flex items-center space-x-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-lg">📞</div>
+            <h4 class="font-bold text-slate-800 text-sm">Telefonía Fija & VoIP</h4>
+          </div>
+          <ul class="text-xs text-slate-600 space-y-2">
+            <li><strong>IP Telefonía:</strong> En diagnosticador debe registrar IP de voz asignada.</li>
+            <li><strong>Estado RINGING:</strong> Al timbrar debe conmutar a Ringing en el CM/ONT.</li>
+            <li><strong>Derivaciones:</strong> Derivación Claro con falla = mantenimiento sin costo; terceros = cobro OT $31.000 si acepta cliente.</li>
+          </ul>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
+          <div class="flex items-center space-x-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg">📺</div>
+            <h4 class="font-bold text-slate-800 text-sm">TV Digital, TVBox & OTT</h4>
+          </div>
+          <ul class="text-xs text-slate-600 space-y-2">
+            <li><strong>LED Decodificador:</strong> Verde/Azul encendido; rojo = standby; sin luz = descarte eléctrico.</li>
+            <li><strong>Deco en Bucle:</strong> Presionar botón reset físico 10s en Android TVBox; en DVB reset con tarjeta o ciclo corriente DX/CX.</li>
+            <li><strong>OTT Netflix/Prime:</strong> Verificar si es Bundle (incluido en factura) o Stand Alone para activación vía App Mi Claro.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 border border-slate-700">
+    <span class="text-emerald-400 text-lg">✓</span>
+    <span id="toastMessage" class="text-xs font-semibold">Tipificación copiada al portapapeles</span>
+  </div>
+
+  <!-- Modal Tips -->
+  <div id="tipsModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200 transform transition-all">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-red-100 text-claro flex items-center justify-center text-xl">👷</div>
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900">Guía de Procedimientos Rápidos Claro</h3>
+            <p class="text-xs text-slate-500">Operaciones Residenciales</p>
+          </div>
+        </div>
+        <button onclick="closeTipsModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-sm font-bold">✕</button>
+      </div>
+
+      <div class="mt-4 space-y-3.5 text-xs text-slate-600 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
+        <div class="p-3 bg-red-50 rounded-xl border border-red-100">
+          <span class="font-bold text-claro block mb-1">1. Ciclo de Apagado / Encendido (Hard Reset / Power Cycle):</span>
+          Desconectar de toma eléctrica (DX), esperar 15 a 30 segundos, volver a conectar y esperar que sincronicen los leds de enlace.
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="font-bold text-slate-800 block mb-1">2. Prueba de Ping en Símbolo del Sistema:</span>
+          Ejecutar: <code class="bg-slate-800 text-emerald-400 px-2 py-0.5 rounded font-mono">ping www.google.com -n 50</code> para comprobar si hay pérdida de paquetes superior al 10%.
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="font-bold text-slate-800 block mb-1">3. Plataformas OTT (Netflix / Amazon Prime):</span>
+          Garantizar que el cliente ingrese a la app <strong>Mi Claro</strong> con el correo titular para sincronizar la membresía o generar escalamiento por 360 si arroja error de activación.
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="font-bold text-slate-800 block mb-1">4. Visita Técnica / Llamada de servicio en predio (Lls):</span>
+          Solo generar visita cuando las pruebas lógicas remotas (aprovisionamiento, reset, TR69, canales) no restablecen la señal o se detecta daño físico en acometida/conectores.
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 flex justify-end">
+        <button onclick="closeTipsModal()" class="px-5 py-2.5 bg-claro text-white text-xs font-bold rounded-xl hover:bg-red-700 transition">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts segmentados -->
+  <script src="js/app.js"></script>
+</body>
+</html>

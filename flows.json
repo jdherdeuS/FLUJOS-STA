@@ -1,0 +1,2617 @@
+{
+  "internet": [
+    {
+      "id": "int-01",
+      "code": "FLOW-INT-01",
+      "category": "internet",
+      "title": "Sin Navegación FTTH Niveles OK",
+      "summary": "Validación de IP WAN, puertos LAN, cables, PING/Tracert y reset de ONT.",
+      "initialStep": "s1",
+      "steps": {
+        "s1": {
+          "type": "decision",
+          "title": "Validar si la ONT toma IP WAN",
+          "desc": "Ingresar a diagnosticador o interfaz de ONT para validar asignación de IP WAN pública/privada.",
+          "tip": "Si la ONT no toma IP WAN, se debe verificar el aprovisionamiento y perfil en TR69.",
+          "actions": [
+            { "label": "Toma IP WAN ", "nextStep": "s2", "style": "primary" },
+            { "label": "NO Toma IP WAN", "nextStep": "s_no_wan", "style": "danger" }
+          ]
+        },
+        "s_no_wan": {
+          "type": "action",
+          "title": "Reinicio y Aprovisionamiento de ONT",
+          "desc": "1. Reiniciar ONT desde diagnosticador.<br>2. Enviar comando reparar.<br>3. En Device Settings, enviar el Get Current desde TR69.<br>4. Deshabilitar y habilitar la IP desde TR69.<br>5. Restablecer de fábrica  el equipo si no responde.",
+          "tip": "Espera que el led de PON se fije antes de reintentar.",
+          "actions": [
+            { "label": "¿La falla persiste?", "nextStep": "end_visita_wan", "style": "danger" },
+            { "label": "¿Se solucionó?", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "s2": {
+          "type": "action",
+          "title": "Verificación Física de Red Local",
+          "desc": "1. Verificación de equipos conectados a ONT.<br>2. Validar led de US/DS/LOSS en ONT).<br>3. Confirmación de LINK en equipo del cliente.<br>4. Probar otro puerto Ethernet.<br>5. Probar con otro cable de red UTP.",
+          "tip": "Solicita al cliente conectar el cable directamente a la laptop o PC.",
+          "actions": [
+            { "label": "¿Falla Persiste? ", "nextStep": "s3", "style": "danger" },
+            { "label": "¿Falla Resuelta? ", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "s3": {
+          "type": "action",
+          "title": "Pruebas de Conectividad PING / TRACERT",
+          "desc": "1. Realizar PING/TRACERT hacia 8.8.8.8 <br>2. Solicitar al cliente /IPCONFIG.<br>3. Probar con otro equipo si es posible.<br>4. Comprobación adaptador de red en equipo del cliente.",
+          "tip": "Si el cliente tiene IP 169.254.x.x significa que no está recibiendo DHCP.",
+          "actions": [
+            { "label": "Falla Persiste (SÍ)", "nextStep": "s4", "style": "danger" },
+            { "label": "Falla Resuelta (NO)", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "s4": {
+          "type": "action",
+          "title": "Reinicio y Reset de Fábrica",
+          "desc": "1. Reiniciar la ONT desde diagnosticador.<br>2. Enviar comando reparar.<br>3. Restablecer de fábrica el equipo ONT.",
+          "tip": "El reset de fábrica toma aproximadamente 3 a 5 minutos.",
+          "actions": [
+            { "label": "Falla Persiste (SÍ)", "nextStep": "end_visita_general", "style": "danger" },
+            { "label": "Falla Resuelta (NO)", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "end_visita_wan": {
+          "type": "terminal",
+          "badge": "Visita Técnica Requerida",
+          "badgeColor": "bg-red-600",
+          "title": "Generar llamada de servicio (Lls) para revisión en predio",
+          "desc": "No fue posible levantar la sesión IP WAN tras reiniciar, reaprovisionar y forzar reset en TR69.",
+          "tipification": "INTERNET FTTH // SIN NAVEGACIÓN // ONT SIN IP WAN // SE REALIZÓ REINICIO, REPARAR Y RESET TR69 SIN ÉXITO // SE AGENDA VISITA TÉCNICA"
+        },
+        "end_visita_general": {
+          "type": "terminal",
+          "badge": "Visita Técnica Requerida",
+          "badgeColor": "bg-red-600",
+          "title": "Generar llamada de servicio para revisión en predio",
+          "desc": "Niveles OK pero persiste sin navegación tras descarte de cableado, ping y reset de fábrica.",
+          "tipification": "INTERNET FTTH // SIN NAVEGACIÓN // DESCARTADO CABLE UTP Y PUERTOS // PRUEBA PING FALLIDA // RESET DE FÁBRICA SIN SOLUCIÓN // REQUIERE VISITA EN PREDIO"
+        },
+        "end_solucion_ok": {
+          "type": "terminal",
+          "badge": "Caso Solucionado",
+          "badgeColor": "bg-emerald-600",
+          "title": "Documentar, tipificar y finalizar interacción con el cliente",
+          "desc": "El servicio de navegación ha quedado restablecido y validado satisfactoriamente.",
+          "tipification": "INTERNET FTTH // NAVEGACIÓN RESTABLECIDA // SE NORMALIZA CONECTIVIDAD TRAS SOPORTE Y PRUEBAS // CLIENTE NAVEGANDO // CASO RESUELTO"
+        }
+      }
+    },
+    {
+      "id": "int-02",
+      "code": "FLOW-INT-02",
+      "category": "internet",
+      "title": "Sin Navegación HFC Niveles OK",
+      "summary": "Validación IP WAN en Cable Módem, puertos LAN, puente y reset físico.",
+      "initialStep": "s1",
+      "steps": {
+        "s1": {
+          "type": "decision",
+          "title": "Validar que el Cable Módem tome IP WAN",
+          "desc": "Consultar en diagnosticador si el cable módem registra IP WAN activa.",
+          "actions": [
+            { "label": "Toma IP WAN (SÍ)", "nextStep": "s2", "style": "primary" },
+            { "label": "NO Toma IP WAN", "nextStep": "s_wan_fail", "style": "danger" }
+          ]
+        },
+        "s_wan_fail": {
+          "type": "action",
+          "title": "Acciones Correctivas de Cable Módem",
+          "desc": "1. Reiniciar CM desde diagnosticador.<br>2. Enviar comando reparar.<br>3. Forzar el modo bridge o configurar IP Fija si aplica.<br>4. Restablecer de fábrica el equipo.",
+          "actions": [
+            { "label": "Persiste la falla (SÍ)", "nextStep": "end_visita_cm", "style": "danger" },
+            { "label": "Se solucionó (NO)", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "s2": {
+          "type": "action",
+          "title": "Verificación de Equipos y Cables LAN conectados al CM",
+          "desc": "1. Validar leds de US/DS en el módem.<br>2. Confirmar LINK en el PC del cliente.<br>3. Probar otro puerto Ethernet y otro cable de red.",
+          "actions": [
+            { "label": "Falla Persiste (SÍ)", "nextStep": "s3", "style": "danger" },
+            { "label": "Falla Resuelta (NO)", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "s3": {
+          "type": "action",
+          "title": "PING / TRACERT y Adaptador de Red",
+          "desc": "1. Realizar ping/tracert, verificar ipconfig del cliente<br>2. Validad accesos LAN<br>3. Comprobacion adaptador de red en equipo del cliente.",
+          "actions": [
+            { "label": "Falla Persiste (SÍ)", "nextStep": "s4", "style": "danger" },
+            { "label": "Falla Resuelta (NO)", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "s4": {
+          "type": "action",
+          "title": "Reinicio CM y Reset de Fábrica",
+          "desc": "Reiniciar CM desde diagnosticador, enviar comando reparar, forzar modo bridge y realizar reset de fábrica.",
+          "actions": [
+            { "label": "Falla Persiste ", "nextStep": "end_visita_cm", "style": "danger" },
+            { "label": "Falla Resuelta ", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "end_visita_cm": {
+          "type": "terminal",
+          "badge": "Visita Técnica Requerida",
+          "badgeColor": "bg-red-600",
+          "title": "Generar llamada de servicio para revisión en predio",
+          "desc": "No se logró establecer la navegación a pesar de niveles OK y reset físico/lógico del Cable Módem.",
+          "tipification": "INTERNET HFC // SIN NAVEGACIÓN NIVELES OK // NO TOMA WAN / FALLA LAN // SE APLICA REINICIO Y RESET // SE PROGRAMA VISITA TÉCNICA"
+        },
+        "end_solucion_ok": {
+          "type": "terminal",
+          "badge": "Solución Exitosa",
+          "badgeColor": "bg-emerald-600",
+          "title": "Documentar, tipificar y finalizar interacción con el cliente",
+          "desc": "El cliente confirma navegación exitosa en sus dispositivos.",
+          "tipification": "INTERNET HFC // NAVEGACIÓN OK // DESCARTADO HARDWARE Y CABLEADO // SERVICIO RESTABLECIDO // FIN DE LLAMADA"
+        }
+      }
+    },
+    
+    {
+    "id": "int-03",
+    "code": "FLOW-INT-03",
+    "category": "internet",
+    "title": "Sin Navegación WiFi HFC Sin Ultra WiFi",
+    "summary": "Descarte cable vs WiFi, validación leds WiFi 2.4/5GHz, cambio SSID y canales.",
+    "initialStep": "s1",
+    "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Confirmar si por cable navega normalmente",
+      "desc": "Preguntar al cliente si conectando un cable Ethernet al módem tiene internet.",
+      "actions": [
+        {
+          "label": "Por cable SÍ navega",
+          "nextStep": "s2",
+          "style": "primary"
+        },
+        {
+          "label": "Por cable NO navega",
+          "nextStep": "end_redir_cable",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_redir_cable": {
+      "type": "terminal",
+      "badge": "Redirección de Flujo",
+      "badgeColor": "bg-indigo-600",
+      "title": "Iniciar el soporte por el flujo de Sin Navegación por cable HFC",
+      "desc": "Dado que la falla afecta también la conexión alámbrica, el problema es global de conexión y no únicamente de la red inalámbrica.",
+      "tipification": "INTERNET HFC // NO NAVEGA POR CABLE NI WIFI // SE DERIVA AL ÁRBOL DE SIN NAVEGACIÓN HFC GLOBAL"
+    },
+    "s2": {
+      "type": "action",
+      "title": "Validación de Leds y Radio Inalámbrico",
+      "desc": "1. Validar si el CM tiene encendidos sus leds de WiFi 2.4 y 5.0.<br>2. Consultar si el cliente puede ver la red en sus dispositivos.<br>3. Verificar estado de la red inalámbrica en la administración del CM.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3": {
+      "type": "decision",
+      "title": "Confirmar nombre de red (SSID)",
+      "desc": "¿El nombre de la red WiFi visible corresponde exactamente al configurado en la etiqueta o cuenta?",
+      "actions": [
+        {
+          "label": "Nombre es correcto (SÍ)",
+          "nextStep": "s4_canales",
+          "style": "primary"
+        },
+        {
+          "label": "Nombre NO es correcto",
+          "nextStep": "s3_cambio",
+          "style": "danger"
+        }
+      ]
+    },
+    "s3_cambio": {
+      "type": "action",
+      "title": "Reconfiguración de SSID y Contraseña",
+      "desc": "Si el CM lo permite, cambiar contraseña y nombre de red. Si no lo permite, modificar el nombre o instruir cambio desde App Mi Claro.",
+      "actions": [
+        {
+          "label": "¿Pudo modificar y conectar? (SÍ)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "No permite modificar datos o no conecta (NO)",
+          "nextStep": "end_MiClaro",
+          "style": "danger"
+        }
+      ]
+    },
+    "s4_canales": {
+      "type": "action",
+      "title": "Cambio de Canales de Frecuencia y Reset",
+      "desc": "1. Cambiar canales de frecuencia WiFi (1, 6 u 11 en 2.4 GHz).<br>2. Reiniciar el Cable Módem.<br>3. Restablecer de fábrica si la señal inalámbrica sigue sin emitir.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_wifi",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_MiClaro": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-indigo-600",
+      "title":"Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Dado que no deja modificar la contraseña decirle que se puede conectar con la genérica que trae el CM en el sticker y despues que realice el cambio por la App Mi Claro",
+      "tipification": "INTERNET HFC // NAVEGACIÓN OK // DESCARTADO HARDWARE Y CABLEADO // SERVICIO RESTABLECIDO // CONFIGURAR CONTRASEA APP MI CLARO // FINALIZAR LLAMADA"
+    },
+    "end_visita_wifi": {
+      "type": "terminal",
+      "badge": "Visita Técnica",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para revisión en predio",
+      "desc": "Módulo inalámbrico del módem no responde tras ajuste de canales y reseteo de fábrica.",
+      "tipification": "INTERNET HFC // SIN NAVEGACIÓN WIFI // DESCARTADA FRECUENCIA Y CONFIGURACIÓN // RESET DE FÁBRICA SIN EFECTO // AGENDA VISITA TÉCNICA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Red WiFi restablecida y cliente conectado correctamente.",
+      "tipification": "INTERNET HFC // WIFI CONFIGURADO Y CONECTADO // CANAL AJUSTADO // NAVEGACIÓN COMPROBADA // FINALIZA"
+    }
+  }
+},
+  {
+  "id": "int-04",
+  "code": "FLOW-INT-04",
+  "category": "internet",
+  "title": "Sin Navegación WiFi FTTH",
+  "summary": "Validación en TR69, descarte con repetidores, canales y credenciales.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Confirmar si por cable navega normalmente",
+      "desc": "¿El cliente puede navegar al conectar un cable de red a la ONT?",
+      "actions": [
+        {
+          "label": "Por cable SÍ navega",
+          "nextStep": "s2",
+          "style": "primary"
+        },
+        {
+          "label": "Por cable NO navega",
+          "nextStep": "end_redir_ftth_cable",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_redir_ftth_cable": {
+      "type": "terminal",
+      "badge": "Redirección",
+      "badgeColor": "bg-indigo-600",
+      "title": "Iniciar el soporte por el flujo de Sin Navegación por cable FTTH",
+      "desc": "La ONT presenta falla total de enlace.",
+      "tipification": "INTERNET FTTH // NO NAVEGA POR CABLE NI WIFI // SE CONTINÚA POR FLUJO GENERAL FTTH"
+    },
+    "s2": {
+      "type": "decision",
+      "title": "¿La conexión WiFi se realiza a través de repetidores?",
+      "desc": "Consultar si el cliente tiene extensores o Ultra WiFi conectados a la ONT.",
+      "actions": [
+        {
+          "label": "Tiene repetidores (SÍ)",
+          "nextStep": "end_redir_repetidores",
+          "style": "primary"
+        },
+        {
+          "label": "Directo de la ONT (NO)",
+          "nextStep": "s3",
+          "style": "secondary"
+        }
+      ]
+    },
+    "end_redir_repetidores": {
+      "type": "terminal",
+      "badge": "Redirección de Flujo",
+      "badgeColor": "bg-indigo-600",
+      "title": "Iniciar flujo de WiFi con Repetidores / Ultra WiFi",
+      "desc": "El descarte debe realizarse sobre la topología mesh o repetidor asignado.",
+      "tipification": "INTERNET FTTH // WIFI CON EXTENSORES // SE DERIVA A FLUJO CON ULTRA WIFI"
+    },
+    "s3": {
+      "type": "action",
+      "title": "Validación en TR69 y Verificación de Red",
+      "desc": "1. Validar desde TR69 que la red WiFi esté activa.<br>2. Confirmar nombre de red (SSID) y contraseña.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s4",
+          "style": "danger"
+        },
+        {
+          "label": "No permite modificar datos",
+          "nextStep": "end_MiClaro",
+          "style": "success"
+        }
+      ]
+    },
+    "s4": {
+      "type": "action",
+      "title": "Reinicio de ONT y Restauración de Fábrica",
+      "desc": "1. Cambiar los canales de frecuencia WIFI.<br>2. Reiniciar el CM<br>3. Cambiar credenciales de red inalámbricas.<br>3. Restablecer de Fabrica el equipo ",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_ftth_wifi",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_MiClaro": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-indigo-600",
+      "title":"Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Dado que no deja modificar la contraseña decirle que se puede conectar con la genérica que trae el CM en el sticker y despues que realice el cambio por la App Mi Claro",
+      "tipification": "INTERNET HFC // NAVEGACIÓN OK // DESCARTADO HARDWARE Y CABLEADO // SERVICIO RESTABLECIDO // CONFIGURAR CONTRASEA APP MI CLARO // FINALIZAR LLAMADA"
+    },
+    "end_visita_ftth_wifi": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para revisión en predio",
+      "desc": "Falla física o de radio en ONT FTTH.",
+      "tipification": "INTERNET FTTH // FALLA RADIO WIFI EN ONT // NO EMITE SEÑAL // RESET DE FÁBRICA TR69 SIN SOLUCIÓN // VISITA AGENDADA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Caso Solucionado",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "WiFi de ONT FTTH restablecido correctamente.",
+      "tipification": "INTERNET FTTH // WIFI ONT RESTABLECIDO // PARÁMETROS OK // CLIENTE SATISFECHO"
+    }
+  }
+},
+{
+  "id": "int-05",
+  "code": "FLOW-INT-05",
+  "category": "internet",
+  "title": "Sin Navegación WiFi HFC Con Ultra WiFi",
+  "summary": "Diagnóstico en topología mesh, sincronización de extensores y app Claro.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Validar si tiene navegacion por cable",
+      "actions": [
+        {
+          "label": "¿Tiene navegacion por cable? (SI)",
+          "nextStep": "s_navegacion",
+          "style": "primary"
+        },
+        {
+          "label": "¿No tiene navegacion por cable?",
+          "nextStep": "end_redir_hfc_cable",
+          "style": "danger"
+        }
+      ]
+    },
+    "s_navegacion": {
+      "type": "action",
+      "title": "Verificar LED",
+      "desc": "Pedir al cliente que nos confirme si la luz del repetidor esta en Rojo",
+      "actions": [
+        {
+          "label": "¿Esta en color rojo? (SÍ)",
+          "nextStep": "s_distancia",
+          "style": "danger"
+        },
+        {
+          "label": "¿Esta en color rojo? (NO)",
+          "nextStep": "s_tr69",
+          "style": "success"
+        }
+      ]
+    },
+    "s_tr69": {
+      "type": "action",
+      "title": "Verifica si tienes acceso desde TR69",
+      "desc": "Consultar por (MAC/SERIAL) el ingreso a TR69",
+      "actions": [
+        {
+          "label": "¿Tienes acceso? (SI)",
+          "nextStep": "parametros_tr69",
+          "style": "success"
+        },
+        {
+          "label": "¿Tienes acceso? (NO)",
+          "nextStep": "s_rep_conectado",
+          "style": "danger"
+        }
+      ]
+    },
+    "parametros_tr69": {
+      "type": "action",
+      "title": "Comprobacion de Internet",
+      "desc": "Comprobar parámetros de red Wifi y Validar que este habilitada la red",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_mesh",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "s4_cambio_canales",
+          "style": "success"
+        }
+      ]
+    },
+    "s4_cambio_canales": {
+      "type": "action",
+      "title": "Cambio de Canales de Frecuencia y Reset",
+      "desc": "1. Cambiar canales de frecuencia WiFi (1, 6 u 11 en 2.4 GHz).<br>2. Reiniciar el Cable Módem.<br>3. Restablecer de fábrica si la señal inalámbrica sigue sin emitir.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_mesh",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s_distancia": {
+      "type": "action",
+      "title": "Verificar Distancia de CM a Repetidor",
+      "desc": "1. Si el repetidor está alejado pedir acercarlo.<br>2. Si está dentro de la distancia (8mts), reiniciar el repetidor.",
+      "actions": [
+        {
+          "label": "Falla Persiste",
+          "nextStep": "s_app_repetidor",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s_app_repetidor": {
+      "type": "action",
+      "title": "Aplicacion de los Repetidores",
+      "desc": "Pedirle al cliente que valide desde la aplicación del equipo si el repetidor si está enmallado.",
+      "actions": [
+        {
+          "label": "¿Tiene acceso a la app? (SI)",
+          "nextStep": "s_rep_conectado",
+          "style": "primary"
+        },
+        {
+          "label": "¿Tiene acceso a la app? (NO)",
+          "nextStep": "s_rep_no_connect",
+          "style": "danger"
+        }
+      ]
+    },
+    "s_rep_conectado": {
+      "type": "action",
+      "title": "Reconexión y Enrolamiento de Repetidores",
+      "desc": "Guiar al cliente para la configuración de la malla según el instructivo de conectados.",
+      "actions": [
+        {
+          "label": "Se configuro el equipo (SI)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "¿Se configuro el equipo? (NO)",
+          "nextStep": "end_visita_mesh",
+          "style": "danger"
+        }
+      ]
+    },
+    "s_rep_no_connect": {
+      "type": "action",
+      "title": "Enrolamiento de Repetidores",
+      "desc": "Guiar al cliente para la descargar y registro de la aplicación del equipo, según el instructivo de conectados.",
+      "actions": [
+        {
+          "label": "¿Pudo registrarse? (SÍ)",
+          "nextStep": "s_rep_conectado",
+          "style": "success"
+        },
+        {
+          "label": "¿Pudo registrarse? (NO)",
+          "nextStep": "end_visita_mesh",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_redir_hfc_cable": {
+      "type": "terminal",
+      "badge": "Redirección",
+      "badgeColor": "bg-indigo-600",
+      "title": "Iniciar el soporte por el flujo de Sin Navegación por cable HFC",
+      "desc": "La CM presenta falla total de enlace.",
+      "tipification": "INTERNET HFC // NO NAVEGA POR CABLE NI WIFI // SE CONTINÚA POR FLUJO GENERAL HFC"
+    },
+    "end_visita_mesh": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de servicio para revisión de Ultra WiFi",
+      "desc": "Falla de enlace o desconfiguración de extensores mesh que requiere soporte técnico en el hogar.",
+      "tipification": "INTERNET HFC // ULTRA WIFI // DESVINCULACIÓN DE REPETIDORES // RESET SIN ÉXITO // SE AGENDA VISITA TÉCNICA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Red Ultra WiFi sincronizada.",
+      "tipification": "INTERNET HFC // ULTRA WIFI OPERATIVO // RED MESH SINCRONIZADA // CASO RESUELTO"
+    }
+  }
+},
+{
+  "id": "int-06",
+  "code": "FLOW-INT-06",
+  "category": "internet",
+  "title": "Sin Navegación WIFI FTTH UW",
+  "summary": "Diagnóstico en topología mesh, sincronización de extensores y app Claro.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Validar si tiene navegacion por cable",
+      "actions": [
+        {
+          "label": "¿Tiene navegacion por cable? (SI)",
+          "nextStep": "s_navegacion",
+          "style": "primary"
+        },
+        {
+          "label": "¿No tiene navegacion por cable?",
+          "nextStep": "end_redir_hfc_cable",
+          "style": "danger"
+        }
+      ]
+    },
+    "s_navegacion": {
+      "type": "action",
+      "title": "Verificar LED",
+      "desc": "Pedir al cliente que nos confirme si la luz del repetidor esta en Rojo",
+      "actions": [
+        {
+          "label": "¿Esta en color rojo? (SÍ)",
+          "nextStep": "s_distancia",
+          "style": "danger"
+        },
+        {
+          "label": "¿Esta en color rojo? (NO)",
+          "nextStep": "s_tr69",
+          "style": "success"
+        }
+      ]
+    },
+    "s_tr69": {
+      "type": "action",
+      "title": "Verifica si tienes acceso desde TR69",
+      "desc": "Consultar por (MAC/SERIAL) el ingreso a TR69",
+      "actions": [
+        {
+          "label": "¿Tienes acceso? (SI)",
+          "nextStep": "parametros_tr69",
+          "style": "success"
+        },
+        {
+          "label": "¿Tienes acceso? (NO)",
+          "nextStep": "s_rep_conectado",
+          "style": "danger"
+        }
+      ]
+    },
+    "parametros_tr69": {
+      "type": "action",
+      "title": "Comprobacion de Internet",
+      "desc": "Comprobar parámetros de red Wifi y Validar que este habilitada la red",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_mesh",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "s4_cambio_canales",
+          "style": "success"
+        }
+      ]
+    },
+    "s4_cambio_canales": {
+      "type": "action",
+      "title": "Cambio de Canales de Frecuencia y Reset",
+      "desc": "1. Cambiar canales de frecuencia WiFi (1, 6 u 11 en 2.4 GHz).<br>2. Reiniciar el Cable Módem.<br>3. Restablecer de fábrica si la señal inalámbrica sigue sin emitir.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_mesh",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s_distancia": {
+      "type": "action",
+      "title": "Verificar Distancia de CM a Repetidor",
+      "desc": "1. Si el repetidor está alejado pedir acercarlo.<br>2. Si está dentro de la distancia (8mts), reiniciar el repetidor.",
+      "actions": [
+        {
+          "label": "Falla Persiste",
+          "nextStep": "s_app_repetidor",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s_app_repetidor": {
+      "type": "action",
+      "title": "Aplicacion de los Repetidores",
+      "desc": "Pedirle al cliente que valide desde la aplicación del equipo si el repetidor si está enmallado.",
+      "actions": [
+        {
+          "label": "¿Tiene acceso a la app? (SI)",
+          "nextStep": "s_rep_conectado",
+          "style": "primary"
+        },
+        {
+          "label": "¿Tiene acceso a la app? (NO)",
+          "nextStep": "s_rep_no_connect",
+          "style": "danger"
+        }
+      ]
+    },
+    "s_rep_conectado": {
+      "type": "action",
+      "title": "Reconexión y Enrolamiento de Repetidores",
+      "desc": "Guiar al cliente para la configuración de la malla según el instructivo de conectados.",
+      "actions": [
+        {
+          "label": "Se configuro el equipo (SI)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "¿Se configuro el equipo? (NO)",
+          "nextStep": "end_visita_mesh",
+          "style": "danger"
+        }
+      ]
+    },
+    "s_rep_no_connect": {
+      "type": "action",
+      "title": "Enrolamiento de Repetidores",
+      "desc": "Guiar al cliente para la descargar y registro de la aplicación del equipo, según el instructivo de conectados.",
+      "actions": [
+        {
+          "label": "¿Pudo registrarse? (SÍ)",
+          "nextStep": "s_rep_conectado",
+          "style": "success"
+        },
+        {
+          "label": "¿Pudo registrarse? (NO)",
+          "nextStep": "end_visita_mesh",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_redir_ftth_cable":{
+      "type": "terminal",
+      "badge": "Redirección",
+      "badgeColor": "bg-indigo-600",
+      "title": "Iniciar el soporte por el flujo de Sin Navegación por cable FTTH",
+      "desc": "La ONT presenta falla total de enlace.",
+      "tipification": "INTERNET FTTH // NO NAVEGA POR CABLE NI WIFI // SE CONTINÚA POR FLUJO GENERAL FTTH"
+    },
+    "end_visita_mesh": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de servicio para revisión de Ultra WiFi",
+      "desc": "Falla de enlace o desconfiguración de extensores mesh que requiere soporte técnico en el hogar.",
+      "tipification": "INTERNET FTTH // ULTRA WIFI // DESVINCULACIÓN DE REPETIDORES // RESET SIN ÉXITO // SE AGENDA VISITA TÉCNICA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Red Ultra WiFi sincronizada.",
+      "tipification": "INTERNET FTTH // ULTRA WIFI OPERATIVO // RED MESH SINCRONIZADA // CASO RESUELTO"
+    }
+  }
+},
+{
+  "id": "int-07",
+  "code": "FLOW-INT-07",
+  "category": "internet",
+  "title": "Cable Módem Desenganchado",
+  "summary": "Revisar los leds de US/DS/Online parpadeando o apagados, cambio de toma y reset.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Confirmar si el Cable Módem emite alguna luz LED",
+      "desc": "¿El equipo tiene algún led encendido en su panel frontal?",
+      "actions": [
+        {
+          "label": "Emite luz (SÍ)",
+          "nextStep": "s2",
+          "style": "primary"
+        },
+        {
+          "label": "NO emite ninguna luz",
+          "nextStep": "s_electrico",
+          "style": "danger"
+        }
+      ]
+    },
+    "s_electrico": {
+      "type": "action",
+      "title": "Descarte Eléctrico de Cable Módem",
+      "desc": "1. Pedirle al cliente cambiar de toma eléctrica de pared.<br>2. Verificar el botón de encendido trasero.<br>3. Realizar un reset físico.",
+      "actions": [
+        {
+          "label": "¿Falla persiste sin encender? (SÍ)",
+          "nextStep": "end_visita_energia",
+          "style": "danger"
+        },
+        {
+          "label": "Equipo encendió y navega (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s2": {
+      "type": "action",
+      "title": "Validación de Leds US / DS / ONLINE y Coaxial",
+      "desc": "1. Consultar si los led de US/DS/ONLINE están fijos o parpadean.<br>2. Validar en aprovisionamiento diferencias de perfiles.<br>3. Comprobar que el cable coaxial esté bien ajustado a la rosca del CM.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3": {
+      "type": "action",
+      "title": "Comando Reparar y Reset Físico",
+      "desc": "Pedir al cliente cambio de toma, ejecutar comando reparar desde aprovisionamiento y realizar reset físico del CM.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_desenganche",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_energia": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de mantenimiento para solución en predio",
+      "desc": "Cable Módem sin alimentación eléctrica. Posible daño de transformador o tarjeta madre.",
+      "tipification": "INTERNET HFC // CABLE MÓDEM NO ENCIENDE // DESCARTADA TOMA // REQUIERE CAMBIO DE FUENTE O MÓDEM EN PREDIO"
+    },
+    "end_visita_desenganche": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de mantenimiento para solución en predio",
+      "desc": "El CM no engancha portadoras downstream/upstream. Falla en acometida coaxial o tap.",
+      "tipification": "INTERNET HFC // CABLE MÓDEM DESENGANCHADO // LEDS US/DS INTERMITENTES // SIN ACCESO A PORTADORAS // AGENDADA VISITA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Confirmar navegación, documentar y tipificar",
+      "desc": "El Cable Módem enganchó portadoras y los leds quedaron fijos.",
+      "tipification": "INTERNET HFC // CM ENGANCHADO // AJUSTE DE COAXIAL Y REPARAR // SERVICIO NORMALIZADO"
+    }
+  }
+},
+{
+  "id": "int-08",
+  "code": "FLOW-INT-08",
+  "category": "internet",
+  "title": "ONT Fuera de Línea",
+  "summary": "Validación de led de (LOS) rojo encendido, estado TR69 y reset óptico.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Confirmar si la ONT emite alguna luz",
+      "desc": "¿La ONT tiene algún led frontal encendido?",
+      "actions": [
+        {
+          "label": "Emite luz (SÍ)",
+          "nextStep": "s2",
+          "style": "primary"
+        },
+        {
+          "label": "NO emite luz",
+          "nextStep": "s_ont_power",
+          "style": "danger"
+        }
+      ]
+    },
+    "s_ont_power": {
+      "type": "action",
+      "title": "Descarte Eléctrico de ONT",
+      "desc": "Pedir al cliente cambio de toma eléctrica y verificar adaptador.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_ont_power",
+          "style": "danger"
+        },
+        {
+          "label": "Encendió y navega (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s2": {
+      "type": "decision",
+      "title": "Consultar si tiene el LED de LOS encendido (Rojo parpadeante)",
+      "desc": "¿El indicador LOS (Loss of Signal) se encuentra encendido en color rojo?",
+      "actions": [
+        {
+          "label": "LED LOS Encendido (SÍ)",
+          "nextStep": "end_visita_los",
+          "style": "danger"
+        },
+        {
+          "label": "LED LOS Apagado (NO)",
+          "nextStep": "s3",
+          "style": "primary"
+        }
+      ]
+    },
+    "s3": {
+      "type": "decision",
+      "title": "Consultar estado TR69 si está en línea con ACS",
+      "desc": "¿En la plataforma de gestión TR69 el equipo aparece conectado?",
+      "actions": [
+        {
+          "label": "En línea con ACS (SÍ)",
+          "nextStep": "s4_tr69_actions",
+          "style": "primary"
+        },
+        {
+          "label": "NO está en línea",
+          "nextStep": "end_visita_tr69",
+          "style": "danger"
+        }
+      ]
+    },
+    "s4_tr69_actions": {
+      "type": "action",
+      "title": "Acciones desde TR69",
+      "desc": "1. Realizar un reset desde TR69.<br>2. Enviar comando reparar.<br>3. Realizar un ping desde TR69 a la ONT.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_tr69",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_los": {
+      "type": "terminal",
+      "badge": "Afectación de Fibra Óptica",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de mantenimiento para solución en predio",
+      "desc": "Led LOS en rojo confirma ruptura de la fibra óptica o desconexión en NAP.",
+      "tipification": "INTERNET FTTH // ONT FUERA DE LÍNEA // LED LOS EN ROJO ACTIVO // SIN POTENCIA ÓPTICA // SE PROGRAMA VISITA TÉCNICA URGENTE"
+    },
+    "end_visita_ont_power": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de mantenimiento para solución en predio",
+      "desc": "ONT no enciende tras descarte eléctrico.",
+      "tipification": "INTERNET FTTH // ONT NO ENCIENDE // DAÑO DE ENERGÍA // SE ENVÍA TÉCNICO A PREDIO"
+    },
+    "end_visita_tr69": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de mantenimiento para solución en predio",
+      "desc": "Equipo fuera de línea sin respuesta en ACS tras comandos de reparación.",
+      "tipification": "INTERNET FTTH // ONT FUERA DE LÍNEA // NO RESPONDE TR69 ACS // VISITA AGENDADA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Confirmar navegación, documentar y tipificar",
+      "desc": "ONT sincronizada y en línea con parámetros normales.",
+      "tipification": "INTERNET FTTH // ONT RESTABLECIDA // SINCRONIZADA CON ÉXITO"
+    }
+  }
+},
+{
+  "id": "int-09",
+  "code": "FLOW-INT-09",
+  "category": "internet",
+  "title": "Lentitud en Navegación HFC Cable",
+  "summary": "Test de velocidad en Speedtest Claro, cookies, configuración dúplex y puertos.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Preparación y Test de Velocidad por Cable",
+      "desc": "1. Dejar un solo equipo conectado por cable (desactivar WiFi temporalmente).<br>2. Realizar test en speedtest.claro.com.co con una sola ventana abierta.<br>3. Validar tiempos de respuesta del PING.",
+      "actions": [
+        {
+          "label": "¿Velocidad está por debajo de lo contratado? (SÍ)",
+          "nextStep": "s2",
+          "style": "danger"
+        },
+        {
+          "label": "Velocidad dentro de rango (NO)",
+          "nextStep": "end_velocidad_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_velocidad_ok": {
+      "type": "terminal",
+      "badge": "Velocidad Conforme",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Indicar al cliente que la velocidad contratada es correcta según norma CRC (mínimo 80% cable).",
+      "tipification": "INTERNET HFC // LENTITUD DESCARTADA // SPEEDTEST CONFORME AL PLAN CONTRATADO // CASO CERRADO"
+    },
+    "s2": {
+      "type": "action",
+      "title": "Reset de CM y Reinicio de Dispositivo",
+      "desc": "1. Realizar un reset físico del CM.<br>2. Solicitar al cliente reiniciar el dispositivo.<br>3. Nuevo test con una sola página abierta.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3": {
+      "type": "action",
+      "title": "Configuración de Tarjeta de Red y Caché",
+      "desc": "1. Validar configuración dúplex del puerto (1 Gbps Full Dúplex).<br>2. Limpiar cookies y archivos temporales del navegador.<br>3. Ejecutar comando ipconfig /flushdns desde el CMD.<br>4. Repetir test.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s4",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s4": {
+      "type": "action",
+      "title": "Aprovisionamiento y Reset de Fábrica",
+      "desc": "Reiniciar CM desde diagnosticador, enviar comando reparar y realizar reset de fábrica.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_lentitud",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_lentitud": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de mantenimiento, documentar y tipificar",
+      "desc": "Persiste degradación de throughput en HFC tras descartes completos.",
+      "tipification": "INTERNET HFC // LENTITUD POR CABLE // DESCARTADO DÚPLEX Y DNS // SPEEDTEST DEGRADADO // SE PROGRAMA VISITA TÉCNICA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Velocidad normalizada al 100% de la capacidad contratada.",
+      "tipification": "INTERNET HFC // LENTITUD SOLUCIONADA // TEST DE VELOCIDAD CONFORME"
+    }
+  }
+},
+{
+  "id": "int-10",
+  "code": "FLOW-INT-10",
+  "category": "internet",
+  "title": "Lentitud en Navegación FTTH Cable",
+  "summary": "Validación de puerto Gigabit en ONT, flushdns y niveles de fibra.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Medición de Velocidad por Cable en ONT",
+      "desc": "Comprobar que la tarjeta de red del cliente soporte 1000 Mbps (Gigabit) y ejecutar test.",
+      "actions": [
+        {
+          "label": "Velocidad por debajo (SÍ)",
+          "nextStep": "s3",
+          "style": "danger"
+        },
+        {
+          "label": "Velocidad conforme (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s2": {
+      "type": "action",
+      "title": "Dúplex, Cookies y Limpieza DNS",
+      "desc": "Validar puerto LAN1 Gigabit de la ONT, limpiar temporales y ejecutar ipconfig /flushdns.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s2",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3": {
+      "type": "action",
+      "title": "Reinicio TR69 y Reset de ONT",
+      "desc": "Reiniciar la ONT desde diagnosticador, enviar comando reparar y reset de fábrica.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_ftth_lentitud",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_ftth_lentitud": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de mantenimiento para solución en predio",
+      "desc": "Posible atenuación en fibra óptica o daño de puerto LAN en ONT.",
+      "tipification": "INTERNET FTTH // LENTITUD POR CABLE // VELOCIDAD POR DEBAJO DE PARÁMETROS // REQUIERE REVISIÓN DE POTENCIA ÓPTICA EN PREDIO"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Velocidad FTTH restablecida según el paquete contratado.",
+      "tipification": "INTERNET FTTH // VELOCIDAD CABLE NORMALIZADA"
+    }
+  }
+},
+{
+  "id": "int-11",
+  "code": "FLOW-INT-11",
+  "category": "internet",
+  "title": "Intermitencia HFC Cable",
+  "summary": "Prueba de 50 paquetes PING continuo, umbral de pérdida mayor al 10%.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Prueba PING de 50 paquetes",
+      "desc": "Pedir al cliente o realizar desde CM un ping continuo de mínimo 50 paquetes a 8.8.8.8.",
+      "actions": [
+        {
+          "label": "¿Hay pérdida igual o mayor al 10%? (SÍ)",
+          "nextStep": "s2_perdida",
+          "style": "danger"
+        },
+        {
+          "label": "Pérdida menor al 10% (NO)",
+          "nextStep": "s_no_perdida",
+          "style": "primary"
+        }
+      ]
+    },
+    "s_no_perdida": {
+      "type": "action",
+      "title": "Reset Físico y Monitoreo de 1 Hora",
+      "desc": "Realizar reset físico del CM y dejar en seguimiento por 1 hora. Si tiene IP diferente a 100.x, dejar ping sostenido.",
+      "actions": [
+        {
+          "label": "¿La falla persiste tras seguimiento? (SÍ)",
+          "nextStep": "end_visita_intermitencia",
+          "style": "danger"
+        },
+        {
+          "label": "Estable sin cortes (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s2_perdida": {
+      "type": "action",
+      "title": "Aislamiento de Dispositivos y Repetición de PING",
+      "desc": "Desconectar todos los demás dispositivos del CM y repetir el test de 50 paquetes.",
+      "actions": [
+        {
+          "label": "¿Se normalizó el PING? (SÍ)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "Sigue perdiendo paquetes (NO)",
+          "nextStep": "s3_reinicio",
+          "style": "danger"
+        }
+      ]
+    },
+    "s3_reinicio": {
+      "type": "action",
+      "title": "Reinicio de CM y Dispositivo",
+      "desc": "Reiniciar el CM y pedir al cliente que reinicie su equipo.",
+      "actions": [
+        {
+          "label": "¿Se normalizó el PING? (SÍ)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "Sigue la intermitencia (NO)",
+          "nextStep": "end_visita_intermitencia",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_visita_intermitencia": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar una llamada de servicio (Lls), documentar y tipificar",
+      "desc": "Pérdida continua de paquetes > 10%. Ruido en retorno o degradación de señal HFC.",
+      "tipification": "INTERNET HFC // INTERMITENCIA CABLE // PÉRDIDA DE PAQUETES > 10% // SE REINICIA CM Y SE AISLAN EQUIPOS // PERSISTE FALLA // SE PROGRAMA VISITA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Ping estable con 0% de pérdida.",
+      "tipification": "INTERNET HFC // INTERMITENCIA SUPERADA // PING ESTABLE 0% PÉRDIDA"
+    }
+  }
+},
+{
+  "id": "int-12",
+  "code": "FLOW-INT-12",
+  "category": "internet",
+  "title": "Intermitencia FTTH Cable",
+  "summary": "Prueba de PING 50 paquetes desde ONT, aislamiento y seguimiento.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Ping de 50 Paquetes en ONT FTTH",
+      "desc": "Garantizar al menos 50 paquetes de ping hacia DNS Claro o 1.1.1.1.",
+      "actions": [
+        {
+          "label": "¿Hay pérdida mayor o igual al 2%? (SÍ)",
+          "nextStep": "s2_aislar",
+          "style": "danger"
+        },
+        {
+          "label": "Sin pérdida relevante (NO)",
+          "nextStep": "s_seguimiento_ftth",
+          "style": "primary"
+        }
+      ]
+    },
+    "s_seguimiento_ftth": {
+      "type": "action",
+      "title": "Reset Físico de ONT y Monitoreo de 1 Hora",
+      "desc": "Realizar reset físico de la ONT y dejar en seguimiento por 1 hora.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_ftth_inter",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s2_aislar": {
+      "type": "action",
+      "title": "Desconexión de Otros Equipos y Repetir Ping",
+      "desc": "Dejar un único equipo y repetir la prueba de 50 paquetes.",
+      "actions": [
+        {
+          "label": "¿Se normalizó el PING? (SÍ)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "Sigue fallando (NO)",
+          "nextStep": "s3_reinicio_ont",
+          "style": "danger"
+        }
+      ]
+    },
+    "s3_reinicio_ont": {
+      "type": "action",
+      "title": "Reinicio de ONT y Dispositivo",
+      "desc": "Reiniciar la ONT por software y reiniciar la computadora del cliente.",
+      "actions": [
+        {
+          "label": "¿Se normalizó el PING? (SÍ)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "NO se normalizó",
+          "nextStep": "end_visita_ftth_inter",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_visita_ftth_inter": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar una Lls, documentar y tipificar",
+      "desc": "Falla intermitente en enlace de fibra óptica.",
+      "tipification": "INTERNET FTTH // INTERMITENCIA CABLE // PÉRDIDA DE PAQUETES PERSISTENTE // VISITA EN PREDIO"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Conexión FTTH estable sin pérdidas de paquetes.",
+      "tipification": "INTERNET FTTH // CONEXIÓN ESTABLE // PING NORMALIZADO"
+    }
+  }
+},
+{
+  "id": "int-13",
+  "code": "FLOW-INT-13",
+  "category": "internet",
+  "title": "Lentitud en Navegación WiFi HFC",
+  "summary": "Prueba en red 5.0 GHz, distancia menor a 2m, cambio de canales.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Condiciones de Prueba en Banda 5.0 GHz",
+      "desc": "Realizar test desde la red 5.0 GHz a menos de 2 metros del módem y con señal al máximo.",
+      "actions": [
+        {
+          "label": "Velocidad por debajo (SÍ)",
+          "nextStep": "s2",
+          "style": "danger"
+        },
+        {
+          "label": "Velocidad normal (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s2": {
+      "type": "action",
+      "title": "Cambio de Canales WiFi en Administración",
+      "desc": "Cambiar a canales fijos 1, 6 u 11 en 2.4 GHz y canal libre en 5 GHz. Repetir test.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3": {
+      "type": "action",
+      "title": "Desactivar y Reactivar Adaptador WiFi",
+      "desc": "Reactivar WiFi del dispositivo cliente, reiniciar módem desde diagnosticador y ejecutar test.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s4_cable_test",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s4_cable_test": {
+      "type": "action",
+      "title": "Comando Reparar y Descarte por Cable",
+      "desc": "Enviar comando reparar, reset de fábrica y solicitar prueba conectando cable UTP.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_wifi_lentitud",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_wifi_lentitud": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de servicio en predio",
+      "desc": "Degradación severa del radio WiFi del equipo.",
+      "tipification": "INTERNET HFC // LENTITUD WIFI // SE AJUSTAN CANALES Y REINICIA // PERSISTE VELOCIDAD BAJA // VISITA TÉCNICA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Rendimiento WiFi restaurado.",
+      "tipification": "INTERNET HFC // RENDIMIENTO WIFI RESTABLECIDO"
+    }
+  }
+},
+{
+  "id": "int-14",
+  "code": "FLOW-INT-14",
+  "category": "internet",
+  "title": "Intermitencia en Navegación WiFi HFC",
+  "summary": "Ubicación a 50cm del suelo mínimo, canales fijos y prueba por cable.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Ajuste de Frecuencia y Ubicación Física",
+      "desc": "Garantizar que el módem esté a más de 50 cm del suelo. Red 2.4 en canal 1/6/11 y 5.0 en automático.",
+      "actions": [
+        {
+          "label": "¿Falla persiste? (SÍ)",
+          "nextStep": "s2",
+          "style": "danger"
+        },
+        {
+          "label": "Falla solucionada (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s2": {
+      "type": "action",
+      "title": "Cambio de SSID y Reinicio de CM",
+      "desc": "Cambiar el nombre de red (SSID), alternar canal de transmisión y reiniciar el equipo.",
+      "actions": [
+        {
+          "label": "¿Falla persiste? (SÍ)",
+          "nextStep": "s3_prueba_cable",
+          "style": "danger"
+        },
+        {
+          "label": "Falla solucionada (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3_prueba_cable": {
+      "type": "action",
+      "title": "Prueba Obligatoria por Cable",
+      "desc": "Indicar al cliente que se deben realizar pruebas por cable. En caso de no contar con equipo con cable, programar mantenimiento.",
+      "actions": [
+        {
+          "label": "Falla Continúa por Cable o no tiene PC (SÍ)",
+          "nextStep": "end_visita_inter_wifi",
+          "style": "danger"
+        },
+        {
+          "label": "Por cable funciona perfecto (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_inter_wifi": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de mantenimiento para solución en predio",
+      "desc": "Intermitencia WiFi persistente tras cambios de canal y descarte de interferencias.",
+      "tipification": "INTERNET HFC // INTERMITENCIA WIFI // CANAL RECONFIGURADO // SE DESCARTA INTERFERENCIA // SE ENVÍA A TERRENO"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Configuración Establecida",
+      "badgeColor": "bg-emerald-600",
+      "title": "Dejar configuración establecida, documentar y tipificar",
+      "desc": "Comportamiento de la red WiFi optimizado.",
+      "tipification": "INTERNET HFC // WIFI ESTABLE // CANALES AJUSTADOS // CASO CERRADO"
+    }
+  }
+},
+{
+  "id": "int-15",
+  "code": "FLOW-INT-15",
+  "category": "internet",
+  "title": "Intermitencia WiFi FTTH",
+  "summary": "Realiza un test de velocidad con las condiciones específicas (menor a 2 mts de distanciay con la potencia mínimo en 4 líneas)",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Test y Configuración de Frecuencias en ONT",
+      "desc": "Banda 2.4 GHz en canal 1/6/11; banda 5 GHz en automático. Ubicación de ONT despejada.",
+      "actions": [
+        {
+          "label": "¿Falla persiste? (SÍ)",
+          "nextStep": "s2",
+          "style": "danger"
+        },
+        {
+          "label": "Falla resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s2": {
+      "type": "action",
+      "title": "Cambio de SSID, Canal y Reinicio ONT",
+      "desc": "Actualizar nombre de red y reiniciar la ONT.",
+      "actions": [
+        {
+          "label": "¿Falla persiste? (SÍ)",
+          "nextStep": "s3_cable",
+          "style": "danger"
+        },
+        {
+          "label": "Falla resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3_cable": {
+      "type": "action",
+      "title": "Prueba por Cable y Descarte de Antena",
+      "desc": "Realizar prueba por cable Ethernet para aislar falla física de la ONT.",
+      "actions": [
+        {
+          "label": "Persiste desconexión (SÍ)",
+          "nextStep": "end_visita_ftth_wifi_inter",
+          "style": "danger"
+        },
+        {
+          "label": "Resuelto (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_ftth_wifi_inter": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de mantenimiento para solución en predio",
+      "desc": "Desconexiones continuas de red inalámbrica en ONT FTTH.",
+      "tipification": "INTERNET FTTH // INTERMITENCIA INALÁMBRICA // VISITA TÉCNICA AGENDADA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Configuración Establecida",
+      "badgeColor": "bg-emerald-600",
+      "title": "Dejar configuración establecida, documentar y tipificar",
+      "desc": "Red WiFi FTTH normalizada.",
+      "tipification": "INTERNET FTTH // INTERMITENCIA WIFI SOLUCIONADA"
+    }
+  }
+},
+{
+  "id": "int-16",
+  "code": "FLOW-INT-16",
+  "category": "internet",
+  "title": "Lentitud en Navegación WiFi FTTH",
+  "summary": "Ajuste de canales en TR69, reseteo de adaptador y test de velocidad.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Prueba de Velocidad en Red 5.0 GHz",
+      "desc": "Validar tiempos de respuesta y velocidad recibida.",
+      "actions": [
+        {
+          "label": "Velocidad por debajo (SÍ)",
+          "nextStep": "s2",
+          "style": "danger"
+        },
+        {
+          "label": "Velocidad normal (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s2": {
+      "type": "action",
+      "title": "Ajuste de Canales en TR69 y Re-test",
+      "desc": "Cambiar canales desde la plataforma TR69 y realizar nuevo test.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3": {
+      "type": "action",
+      "title": "Reinicio de Adaptador y ONT desde Diagnosticador",
+      "desc": "Desactivar y activar red inalámbrica del cliente ,reiniciar ONT y realizar test de velocidad.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s4_reparar",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s4_reparar": {
+      "type": "action",
+      "title": "Comando Reparar y Reset de Fábrica",
+      "desc": "Restablecer configuración de fábrica de la ONT.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_ftth_lent",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_ftth_lent": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Indicar al cliente prueba por cable y programar visita técnica",
+      "desc": "Bajo throughput en antena ONT FTTH.",
+      "tipification": "INTERNET FTTH // LENTITUD WIFI // REAJUSTADO CANAL Y RESET TR69 // VISITA AGENDADA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Velocidad WiFi normalizada en FTTH.",
+      "tipification": "INTERNET FTTH // SPEEDTEST NORMALIZADO"
+    }
+  }
+},
+{
+  "id": "int-17",
+  "code": "FLOW-INT-17",
+  "category": "internet",
+  "title": "Lentitud WiFi HFC Con Ultra WiFi",
+  "summary": "Prueba a 2m de repetidor, cambio de canales mesh y reinicio de repetidores.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Condiciones de Prueba en Ultra WiFi",
+      "desc": "Cliente conectado a la red 5.0 a menos de 2 metros del repetidor y potencia en 4 líneas.",
+      "actions": [
+        {
+          "label": "Velocidad por debajo (SÍ)",
+          "nextStep": "s_acceso",
+          "style": "danger"
+        },
+        {
+          "label": "Velocidad normal (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s_acceso":{
+        "type": "action",
+        "title": "Validar Acceso a TR69 con el Ultra Wifi",
+        "desc": "Modificar canales de frecuencia WiFi y verificar conexión entre equipos mesh.",
+        "actions": [
+            {
+                "label": "¿Tiene acceso? (SI)",
+                "nextStep": "s2",
+                "style": "success"
+            },
+            {
+                "label": "¿Tiene acceso? (NO)",
+                "nextStep":"s_no_acceso",
+                "style": "danger"
+            }
+        ]
+
+    },
+
+    "s_no_acceso":{
+        "type": "decision",
+        "title": "Preguntar por la Aplicacion de los repetidores",
+        "desc": "Consultar si tiene acceso a la aplicacion de los repetidores",
+        "actions": [
+            {
+                "laber": "¿Ingreso a la App de UW? (NO)",
+                "nextStep": "s_no_ingreso_uw",
+                "style": "danger"
+            },
+            {
+                "laber": "¿Ingreso a la App de UW? (SI)",
+                "nextStep": "s_ingreso_uw",
+                "style": "success"
+            }
+        ]
+    },
+    "s_ingreso_uw":{
+        "type": "action",
+        "title": "Modificar Canales desde App",
+        "desc": "Cambiar a canales fijos 1, 6 u 11 en 2.4 GHz y canal libre en 5 GHz. Repetir test.",
+        "actions":[
+            {
+                "laber": "Falla persiste",
+                "nextStep": "s3",
+                "style": "danger"
+            },
+            {
+                "laber": "Falla Resuelta",
+                "nextStep": "end_solucion_ok",
+                "style" : "success"
+            }
+        ]
+
+    },
+
+    "s_no_ingreso_uw": {
+        "type": "action",
+        "title": "Decargar App de Ultra Wifi",
+        "desc": "Guiar al cliente para la descargar y registro de la aplicación del equipo, según el instructivo de conectados. ",
+        "actions":[
+            {
+                "label": "¿Pudo Registrase? (SI)",
+                "nextStep": "s3",
+                "style": "success"
+            },
+            {
+                "label": "¿Pudo registrarse? (NO)",
+                "nextStep": "end_visita_mesh_lenta",
+                "style": "danger"
+            }
+        ]
+        },
+
+    "s2": {
+      "type": "action",
+      "title": "Acceso TR69 o App Repetidor",
+      "desc": "Modificar canales de frecuencia WiFi y verificar conexión entre equipos mesh.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+
+
+    "s3": {
+      "type": "action",
+      "title": "Reinicio y Reset de Repetidores Mesh",
+      "desc": "Reiniciar repetidores, restablecer de fábrica y pedirle al cliente que reinicie el equipo.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_mesh_lenta",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_mesh_lenta": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Realizar pruebas por cable y programar visita técnica en predio",
+      "desc": "Pérdida de ancho de banda en enlace Ultra WiFi.",
+      "tipification": "INTERNET HFC // ULTRA WIFI // VELOCIDAD DEGRADADA EN NODOS // SE AGENDARÁ VISITA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción",
+      "desc": "Nodos Ultra WiFi transmitiendo a velocidad contratada.",
+      "tipification": "INTERNET HFC // ULTRA WIFI // NAVEGACIÓN OK"
+    }
+  }
+},
+{
+  "id": "int-18",
+  "code": "FLOW-INT-18",
+  "category": "internet",
+  "title": "Intermitencia FTTH Con Ultra WiFi",
+  "summary": "Desconexiones continuas en red mesh de fibra, ajuste TR69 y enlace.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Condiciones de Prueba en Ultra WiFi",
+      "desc": "Verificar que la distancia entre ONT y repetidor no supere 8-10 metros sin paredes metálicas y comprobar velocidades",
+      "actions": [
+        {
+          "label": "Velocidad por debajo (SÍ)",
+          "nextStep": "s_acceso",
+          "style": "danger"
+        },
+        {
+          "label": "Velocidad normal",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s_acceso":{
+        "type": "action",
+        "title": "Validar Acceso a TR69 con el Ultra Wifi",
+        "desc": "Modificar canales de frecuencia WiFi y verificar conexión entre equipos mesh.",
+        "actions": [
+            {
+                "label": "¿Tiene acceso? (SI)",
+                "nextStep": "s2",
+                "style": "success"
+            },
+            {
+                "label": "¿Tiene acceso? (NO)",
+                "nextStep":"s_no_acceso",
+                "style": "danger"
+            }
+        ]
+
+    },
+
+    "s_no_acceso":{
+        "type": "decision",
+        "title": "Preguntar por la Aplicacion de los repetidores",
+        "desc": "Consultar si tiene acceso a la aplicacion de los repetidores",
+        "actions": [
+            {
+                "laber": "¿Ingreso a la App de UW? (NO)",
+                "nextStep": "s_no_ingreso_uw",
+                "style": "danger"
+            },
+            {
+                "laber": "¿Ingreso a la App de UW? (SI)",
+                "nextStep": "s_ingreso_uw",
+                "style": "success"
+            }
+        ]
+    },
+    "s_ingreso_uw":{
+        "type": "action",
+        "title": "Modificar Canales desde App",
+        "desc": "Cambiar a canales fijos 1, 6 u 11 en 2.4 GHz y canal libre en 5 GHz. Repetir test.",
+        "actions":[
+            {
+                "laber": "Falla persiste",
+                "nextStep": "s3",
+                "style": "danger"
+            },
+            {
+                "laber": "Falla Resuelta",
+                "nextStep": "end_solucion_ok",
+                "style" : "success"
+            }
+        ]
+
+    },
+
+    "s_no_ingreso_uw": {
+        "type": "action",
+        "title": "Decargar App de Ultra Wifi",
+        "desc": "Guiar al cliente para la descargar y registro de la aplicación del equipo, según el instructivo de conectados. ",
+        "actions":[
+            {
+                "label": "¿Pudo Registrase? (SI)",
+                "nextStep": "s3",
+                "style": "success"
+            },
+            {
+                "label": "¿Pudo registrarse? (NO)",
+                "nextStep": "end_visita_mesh_lenta",
+                "style": "danger"
+            }
+        ]
+        },
+
+    "s2": {
+      "type": "action",
+      "title": "Acceso TR69 o App Repetidor",
+      "desc": "Modificar canales de frecuencia WiFi y verificar conexión entre equipos mesh.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+
+
+    "s3": {
+      "type": "action",
+      "title": "Reinicio y Reset de Repetidores Mesh",
+      "desc": "Reiniciar repetidores, restablecer de fábrica y pedirle al cliente que reinicie el equipo.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_mesh_lenta",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_mesh_ftth_inter": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de servicio para revisión en predio",
+      "desc": "Falla de conectividad en red mesh FTTH.",
+      "tipification": "INTERNET FTTH // ULTRA WIFI // INTERMITENCIA EN RED EXTENDIDA // VISITA TÉCNICA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar y finalizar caso",
+      "desc": "Enlace inalámbrico mallado estabilizado.",
+      "tipification": "INTERNET FTTH // ULTRA WIFI ESTABILIZADO"
+    }
+  }
+},
+{
+  "id": "int-19",
+  "code": "FLOW-INT-19",
+  "category": "internet",
+  "title": "Intermitencia HFC Con Ultra WiFi",
+  "summary": "Desconexiones continuas en red mesh de fibra, ajuste TR69 y enlace.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Condiciones de Prueba en Ultra WiFi",
+      "desc": "Verificar que la distancia entre ONT y repetidor no supere 8-10 metros sin paredes metálicas y comprobar velocidades",
+      "actions": [
+        {
+          "label": "Velocidad por debajo (SÍ)",
+          "nextStep": "s_acceso",
+          "style": "danger"
+        },
+        {
+          "label": "Velocidad normal",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s_acceso":{
+        "type": "action",
+        "title": "Validar Acceso a TR69 con el Ultra Wifi",
+        "desc": "Modificar canales de frecuencia WiFi y verificar conexión entre equipos mesh.",
+        "actions": [
+            {
+                "label": "¿Tiene acceso? (SI)",
+                "nextStep": "s2",
+                "style": "success"
+            },
+            {
+                "label": "¿Tiene acceso? (NO)",
+                "nextStep":"s_no_acceso",
+                "style": "danger"
+            }
+        ]
+
+    },
+
+    "s_no_acceso":{
+        "type": "decision",
+        "title": "Preguntar por la Aplicacion de los repetidores",
+        "desc": "Consultar si tiene acceso a la aplicacion de los repetidores",
+        "actions": [
+            {
+                "laber": "¿Ingreso a la App de UW? (NO)",
+                "nextStep": "s_no_ingreso_uw",
+                "style": "danger"
+            },
+            {
+                "laber": "¿Ingreso a la App de UW? (SI)",
+                "nextStep": "s_ingreso_uw",
+                "style": "success"
+            }
+        ]
+    },
+    "s_ingreso_uw":{
+        "type": "action",
+        "title": "Modificar Canales desde App",
+        "desc": "Cambiar a canales fijos 1, 6 u 11 en 2.4 GHz y canal libre en 5 GHz. Repetir test.",
+        "actions":[
+            {
+                "laber": "Falla persiste",
+                "nextStep": "s3",
+                "style": "danger"
+            },
+            {
+                "laber": "Falla Resuelta",
+                "nextStep": "end_solucion_ok",
+                "style" : "success"
+            }
+        ]
+
+    },
+
+    "s_no_ingreso_uw": {
+        "type": "action",
+        "title": "Decargar App de Ultra Wifi",
+        "desc": "Guiar al cliente para la descargar y registro de la aplicación del equipo, según el instructivo de conectados. ",
+        "actions":[
+            {
+                "label": "¿Pudo Registrase? (SI)",
+                "nextStep": "s3",
+                "style": "success"
+            },
+            {
+                "label": "¿Pudo registrarse? (NO)",
+                "nextStep": "end_visita_mesh_lenta",
+                "style": "danger"
+            }
+        ]
+        },
+
+    "s2": {
+      "type": "action",
+      "title": "Acceso TR69 o App Repetidor",
+      "desc": "Modificar canales de frecuencia WiFi y verificar conexión entre equipos mesh.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+
+
+    "s3": {
+      "type": "action",
+      "title": "Reinicio y Reset de Repetidores Mesh",
+      "desc": "Reiniciar repetidores, restablecer de fábrica y pedirle al cliente que reinicie el equipo.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_mesh_lenta",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_mesh_ftth_inter": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de servicio para revisión en predio",
+      "desc": "Falla de conectividad en red mesh FTTH.",
+      "tipification": "INTERNET FTTH // ULTRA WIFI // INTERMITENCIA EN RED EXTENDIDA // VISITA TÉCNICA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar y finalizar caso",
+      "desc": "Enlace inalámbrico mallado estabilizado.",
+      "tipification": "INTERNET FTTH // ULTRA WIFI ESTABILIZADO"
+    }
+  }
+},
+{
+  "id": "int-20",
+  "code": "FLOW-INT-20",
+  "category": "internet",
+  "title": "Sin Acceso a Páginas Específicas HFC",
+  "summary": "Descarte de bloqueo por DNS, proxy, control parental y MTU", 
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "tip": "1. Garantizar que no tenga servidores Proxy configurados, la conexión sea directa al CM y no tenga una ip o DNS configurado de forma manual o algún bloqueo por firewall del sistema de seguridad del cliente.<br>2. Si el cliente tiene otros dispositivos conectados a la misma red (otros PC, smartphones, dispositivos de streaming, etc.), podrían estar consumiendo ancho de banda. Intentar desconectar otros dispositivos y validar de nuevo.<br>3. Si la falla no se presenta en otros equipos del cliente recomendar validar con el técnico de confianza.<br>4. Cambia de navegador: Si estás usando un navegador específico, prueba con otro (por ejemplo, si usas Chrome, prueba Firefox, Edge, etc.) para ver si el problema persiste. A veces, el problema puede ser específico de un navegador.<br>5. Limpia el caché y las cookies: Si el problema persiste en el mismo navegador, limpia la caché y las cookies del navegador, ya que a veces estos archivos temporales pueden causar problemas de acceso a páginas web.<br>6. En Chrome: Configuración > Privacidad y seguridad > Borrar datos de navegación > selecciona (Cookies y otros datos de sitios) y (Imágenes y archivos en caché.)<br>7. En Firefox: Menú > Configuración > Privacidad y seguridad > Cookies y datos del sitio > Limpiar datos.<br>8. Si la falla no se presenta en otros equipos del cliente recomendar validar con el técnico de confianza.<br>10. realizar la prueba con un dispositivo móvil con datos para confirmar que la página no tenga inconvenientes ",
+      "type": "action",
+      "title": "Prueba de Acceso y PING a Dominio vs IP",
+      "desc": "Hacer ping a la IP del sitio de falla desde desde el CMD del cliente y confimar si la IP empieza por 5.XXX.X.X O 10.XX.X.",
+      "actions": [
+        {
+          "label": "¿La pagina inicia por 5. o 10.? (SÍ)",
+          "nextStep": "end_escalamiento_evidencias",
+          "style": "danger"
+        },
+        {
+          "label": "¿La pagina inicia por 5. o 10.? (NO)",
+          "nextStep": "s_cmd",
+          "style": "primary"
+        }
+      ]
+    },
+    "s_cmd":{
+        "type": "action",
+        "title": "Realizar ping desde el CMD del cliente a pagina con falla ",
+        "desc": "Pedirle al cliente que oprima la tecla windows y R al mismo tiempo.<br>2. En el cuadro de diálogo que se abre escribir CMD y enter.<br>3. Una vez dentro del DOS pedirle que ejecute el comando: ping -t www.xxx.com, siendo las X la dirección de la página",
+        "actions": [
+            {
+                "label":"¿Pudo realizar el ping efectivo? (SI)",
+                "nextStep": "end_ping_efectivo",
+                "style": "success"
+            },
+            {
+                "label": "¿Pudo realizar el ping efectivo? (NO)",
+                "nextStep": "s_tracert",
+                "style": "danger"
+            }
+            
+        ]
+
+    },
+    "s_tracert": {
+        "type": "action",
+        "title": "Revision de Host de pagina de referencia",
+        "desc": "Pedirle al cliente que realice el comando: tracert XXX.XXX.XXX.XX, siendo X la ip de la página.<br>2. Validar ¿en qué? salto se pierde la conectividad, si se presenta en los 3 primeros la afectación es del equipo del cliente, CM o red Claro.<br>3. Si se presenta en los siguientes, hace referencia a el host donde se aloja la página.<br>4. Si el cliente no puede ejecutar el comando, realízalo desde la administración del CM.",
+        "actions": [
+            {
+                "label": "¿Falla en los primeros 3 saltos? (NO)",
+                "nextStep": "",
+                "style": "success"
+            },
+            {
+                "label": "¿Falla en los primeros 3 saltos? (SI)",
+                "nextStep": "s3_reinicio",
+                "style": "danger"
+            }
+        ]
+
+    },
+    "s3_reinicio": {
+      "type": "action",
+      "title": "Reinicio de CM y Dispositivo",
+      "desc": "Reiniciar el CM  desde diagnosticador .",
+      "actions": [
+        {
+          "label": "¿Falla normalizada?",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "Falla Persiste ",
+          "nextStep": "end_visita_dns",
+          "style": "danger"
+        }
+      ]
+    },
+    "s_avanzada": {
+        "type":"action",
+        "title": "Configuracion Pastrough/DMZ",
+        "desc": "Generar una configuración avanzada (pastrough, DMZ) al equipo que conecta al cliente y reinicia el CM.",
+        "actions":[
+            {
+                "label": "¿Falla persiste? (SÍ)",
+                "nextStep": "",
+                "style": "danger"
+            },
+            {
+                "label": "¿Falla persiste? (NO)",
+                "nextStep": "end_solucion_ok",
+                "style": "success"
+            }
+        ]
+
+    },
+    "s_wan": {
+        "type": "action",
+        "title": "Renovacion de IP",
+        "desc": "Si el CM permite renovar la IP WAN, realizarlo de lo contrario, configurar una IP estática en la WAN.",
+        "actions":[
+            {
+                "label": "¿Falla persiste? (SÍ)",
+                "nextStep": "end_"
+            }
+        ]
+
+    },
+    "s_dns_fix": {
+      "type": "action",
+      "title": "Limpieza de Caché DNS y Configuración de DNS Primario",
+      "desc": "Ejecutar ipconfig /flushdns y asignar DNS públicos Claro o 8.8.8.8 en adaptador.",
+      "actions": [
+        {
+          "label": "¿Pudo navegar? (SÍ)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "Sigue sin cargar (NO)",
+          "nextStep": "s_firewall",
+          "style": "danger"
+        }
+      ]
+    },
+    "s_firewall": {
+      "type": "action",
+      "title": "Descarte de Antivirus, Firewall y Control Parental",
+      "desc": "Verificar que la página no esté bloqueada por seguridad familiar o certificados SSL caducados.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_dns",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_dns": {
+      "type": "terminal",
+      "badge": "Escalamiento N2",
+      "badgeColor": "bg-amber-600",
+      "title": "Escalar caso a Soporte Operativo 2 / Ruteo IP",
+      "desc": "Falla de resolución o enrutamiento externo hacia sitios puntuales.",
+      "tipification": "INTERNET HFC // SIN ACCESO A PÁGINAS ESPECÍFICAS // DNS DESCARTADO // SE ESCALA A N2"
+
+    },
+    "end_ping_efectivo":{
+        "type": "terminal",
+      "badge": "Recomendaciones a Cliente",
+      "badgeColor": "bg-amber-600",
+      "title": "Conectividad por pagina",
+      "desc": "Indicarle al cliente que el CM tiene conectividad con la página, por lo que debe descartar antivirus, configuragión de proxi u otro aplicativo de seguridad del equipo o navegador. ",
+      "tipification": "INTERNET HFC // ACCESO A PÁGINA WEB NORMALIZADO // DESCARTAR ANTIVIRUS // "
+
+    },
+    "end_escalamiento_evidencias":{
+        "type": "terminal",
+        "badge" : "Escalamiento BackOffice de Internet",
+        "badgeColor": "bg-indigo-600",
+        "title": "Documentos a evidenciar",
+        "desc": "1. Seriales de ONT`s reportados, Modelo, versión de Firmware (ADJUNTA)<br>2. Teléfonos de contacto del cliente, Dirección, TRK, OLT (NA)<br>3. Relacionar IP publica que está tomando (en google colocar cual es mi ip y usar cualquiera de las URL) (ADJUNTA)<br>4. Adjuntar pruebas: trazas, pin. (las pruebas se deben hacer con la conexión directa a la ONT por cable) sobre la página (s) que reporta el cliente sin acceso. (ADJUNTA) <br>5. nslookup sobre las páginas que reporta el cliente sin acceso (anexar print) (NA)<br>6. Realizar ping desde consola (CMD) a las Url que reporta el cliente y a la ip de la pagina (Anexar print) (ADJUNTA)<br>7. Desde el navegador abrir la dirección ip de la página en falla (Anexar print) (ADJUNTA)",
+        "tipification": "INTERNET HFC // PROBLEMA CON IP DE PLATAFORMA // SIN ACCESO A WEB // CREACION DE INC POR PLATAFORMA"
+
+    },
+    "end_escalamiento_ip":{
+        "type": "terminal",
+        "badge": "Escalamiento Por Plataforma",
+        "badgeColor":"bg-red-600",
+        "title": "Evidencia para escalamiento de caso",
+        "desc": "generar un escalamiento por plataforma, por lo que es necesario aportar las evidencias (print) donde se muestre la IP que toma la página. ",
+              "tipification": "INTERNET HFC // PROBLEMA CON IP DE PLATAFORMA // SIN ACCESO A WEB // CREACION DE INC POR PLATAFORMA"
+
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar y finalizar interacción",
+      "desc": "Sitios web cargan con normalidad.",
+      "tipification": "INTERNET HFC // DNS REFRESCADO // ACCESO WEB NORMALIZADO"
+    }
+  }
+}   
+
+  ],
+  "telefonia": [
+    {
+      "id": "tel-01",
+      "code": "FLOW-TEL-01",
+      "category": "telefonia",
+      "title": "Línea Sin Tono HFC",
+      "summary": "Validar IP de telefonía en diagnosticador, registro SIP, puerto TEL1 y reset.",
+      "initialStep": "s1",
+      "steps": {
+        "s1": {
+          "type": "decision",
+          "title": "Validar si en diagnosticador cuenta con IP de Telefonía",
+          "desc": "Ingresar a la herramienta de diagnóstico y consultar la pestaña de VoIP del Cable Módem.",
+          "tip": "La IP de telefonía VoIP debe estar activa en el pool de voz.",
+          "actions": [
+            { "label": "Tiene IP de telefonía (SÍ)", "nextStep": "s2_con_ip", "style": "primary" },
+            { "label": "NO tiene IP de telefonía", "nextStep": "s1_no_ip", "style": "danger" }
+          ]
+        },
+        "s1_no_ip": {
+          "type": "action",
+          "title": "Reinicio y Aprovisionamiento de Voz",
+          "desc": "1. Reiniciar el CM desde diagnosticador.<br>2. Enviar comando reparar.<br>3. Desprovisionar la línea por OT desde RR.<br>4. Restablecer de fábrica el equipo.",
+          "actions": [
+            { "label": "¿Tomó IP? (SÍ)", "nextStep": "s2_con_ip", "style": "primary" },
+            { "label": "NO tomó IP de telefonía", "nextStep": "end_visita_tel_hfc", "style": "danger" }
+          ]
+        },
+        "s2_con_ip": {
+          "type": "action",
+          "title": "Prueba de Tonos y Estado de Registro",
+          "desc": "1. Generar un reinicio del CM.<br>2. Enviar comando reparar desde aprovisionamiento.<br>3. Solicitar al cliente desconectar y reconectar el cable RJ11 en el puerto TEL 1.",
+          "actions": [
+            { "label": "¿Falla persiste? (SÍ)", "nextStep": "s3_admin_cm", "style": "danger" },
+            { "label": "Tiene tono normal (NO)", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "s3_admin_cm": {
+          "type": "decision",
+          "title": "Ingresar a administración del CM y validar registro de telefonía",
+          "desc": "¿El registro de telefonía está completo o el puerto está en OFF / LOCK?",
+          "actions": [
+            { "label": "Puerto OFF / LOCK o Incompleto", "nextStep": "s3_restore", "style": "danger" },
+            { "label": "Registro Completo / OK", "nextStep": "s4_cambio_puerto", "style": "primary" }
+          ]
+        },
+        "s3_restore": {
+          "type": "action",
+          "title": "Restablecer CM de Fábrica",
+          "desc": "Ejecutar reset de fábrica para forzar la descarga del archivo de configuración eMTA.",
+          "actions": [
+            { "label": "Continúa falla de registro (SÍ)", "nextStep": "end_visita_tel_hfc", "style": "danger" },
+            { "label": "Registrado y con tono (NO)", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "s4_cambio_puerto": {
+          "type": "action",
+          "title": "Cambio de Puerto Telefónico por OT",
+          "desc": "Por medio de una orden de trabajo (OT), cambiar el puerto de la línea telefónica (de TEL1 a TEL2) y enviar aprovisionamiento.",
+          "actions": [
+            { "label": "Falla Persiste (SÍ)", "nextStep": "end_visita_tel_hfc", "style": "danger" },
+            { "label": "Falla Resuelta (NO)", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "end_visita_tel_hfc": {
+          "type": "terminal",
+          "badge": "Visita Técnica Requerida",
+          "badgeColor": "bg-red-600",
+          "title": "Generar llamada de servicio para revisión en predio",
+          "desc": "Falla en puerto eMTA o cableado telefónico interno que no se solucionó por comando remoto.",
+          "tipification": "TELEFONÍA HFC // LÍNEA SIN TONO // SE VERIFICA IP VOIP // SE APLICA REPARAR, RESET Y CAMBIO DE PUERTO SIN ÉXITO // SE ASIGNA VISITA"
+        },
+        "end_solucion_ok": {
+          "type": "terminal",
+          "badge": "Solución Exitosa",
+          "badgeColor": "bg-emerald-600",
+          "title": "Documentar, tipificar y finalizar interacción con el cliente",
+          "desc": "La línea telefónica tiene tono continuo y permite llamadas.",
+          "tipification": "TELEFONÍA HFC // LÍNEA CON TONO RESTABLECIDO // CASO FINALIZADO"
+        }
+      }
+    }
+  ],
+  "tv": [
+    {
+      "id": "tv-01",
+      "code": "FLOW-TV-01",
+      "category": "tv",
+      "title": "Sin Señal (DVB - ITV)",
+      "summary": "Leds de deco verde/azul, cable HDMI/coaxial, botón Source e ITV reset.",
+      "initialStep": "s1",
+      "steps": {
+        "s1": {
+          "type": "action",
+          "title": "Validar si el decodificador está encendido",
+          "desc": "La luz frontal del decodificador debe ser de color verde, blanco o azul.",
+          "tip": "Si la luz está en rojo, el deco está en modo Stand-by.",
+          "actions": [
+            { "label": "Luz encendida en verde/azul (SÍ)", "nextStep": "s2_hdmi", "style": "primary" },
+            { "label": "Luz apagada o en rojo (NO)", "nextStep": "s1_power", "style": "danger" }
+          ]
+        },
+        "s1_power": {
+          "type": "action",
+          "title": "Descarte Eléctrico de Decodificador",
+          "desc": "Pedir al cliente que genere una desconexión de la corriente y lo vuelva a conectar. Cambiar de toma eléctrica si no enciende.",
+          "actions": [
+            { "label": "¿Encendió? (SÍ)", "nextStep": "s2_hdmi", "style": "primary" },
+            { "label": "NO enciende", "nextStep": "end_visita_deco_electrico", "style": "danger" }
+          ]
+        },
+        "s2_hdmi": {
+          "type": "action",
+          "title": "Validación de Entrada HDMI / Audio y Video",
+          "desc": "1. Pedir al cliente que valide los conectores físicos del deco al televisor.<br>2. Confirmar la entrada correcta (HDMI1, HDMI2, etc.) a través del botón SOURCE / INPUT del control del TV.",
+          "actions": [
+            { "label": "Falla Persiste (SÍ)", "nextStep": "s3_mensaje", "style": "danger" },
+            { "label": "Falla Resuelta (NO)", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "s3_mensaje": {
+          "type": "action",
+          "title": "Validación de Mensaje en Pantalla",
+          "desc": "Consultar si la pantalla queda en negro o si arroja el mensaje 'Sin señal, verifique cable'. Si aparece logo de Claro, el deco está cargando.",
+          "actions": [
+            { "label": "¿Aparece logo Claro? (SÍ)", "nextStep": "s4_reset_tarjeta", "style": "primary" },
+            { "label": "Pantalla en negro total (NO)", "nextStep": "s3_puerto_hdmi", "style": "danger" }
+          ]
+        },
+        "s3_puerto_hdmi": {
+          "type": "action",
+          "title": "Cambio de Puerto HDMI o Invertir Puntas",
+          "desc": "Pedir al cliente cambiar la entrada o invertir las puntas del cable HDMI.",
+          "actions": [
+            { "label": "¿Falla persiste? (SÍ)", "nextStep": "s4_reset_tarjeta", "style": "danger" },
+            { "label": "Falla Resuelta (NO)", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "s4_reset_tarjeta": {
+          "type": "action",
+          "title": "Reset Físico y Reset de Tarjeta SmartCard",
+          "desc": "1. Realizar un reset físico.<br>2. Si permite acceder al menú, restablecimiento de fábrica.<br>3. En decos con tarjeta SmartCard, extraer y reinsertar con chip hacia abajo.",
+          "actions": [
+            { "label": "¿Falla persiste? (SÍ)", "nextStep": "end_visita_tv_predio", "style": "danger" },
+            { "label": "Falla Resuelta (NO)", "nextStep": "end_solucion_ok", "style": "success" }
+          ]
+        },
+        "end_visita_deco_electrico": {
+          "type": "terminal",
+          "badge": "Visita Técnica Requerida",
+          "badgeColor": "bg-red-600",
+          "title": "Generar llamada de servicio para cambio de equipo",
+          "desc": "Decodificador sin respuesta eléctrica tras descarte de toma.",
+          "tipification": "TV DVB // DECO NO ENCIENDE // DESCARTADA TOMA // REQUIERE CAMBIO DE DECO EN PREDIO"
+        },
+        "end_visita_tv_predio": {
+          "type": "terminal",
+          "badge": "Visita Técnica Requerida",
+          "badgeColor": "bg-red-600",
+          "title": "Generar llamada de servicio para revisión en predio",
+          "desc": "Persiste sin señal tras descartes físicos de HDMI, selector de canal y reseteo.",
+          "tipification": "TV DVB-ITV // SIN SEÑAL // DESCARTADO HDMI Y RESET SMARTCARD // AGENDA TÉCNICO EN PREDIO"
+        },
+        "end_solucion_ok": {
+          "type": "terminal",
+          "badge": "Solución Exitosa",
+          "badgeColor": "bg-emerald-600",
+          "title": "Documentar, tipificar y finalizar interacción con el cliente",
+          "desc": "Señal de televisión restablecida con audio y video normales.",
+          "tipification": "TV DVB-ITV // SEÑAL RESTABLECIDA // CONFIGURACIÓN HDMI CORRECTA // CASO CERRADO"
+        }
+      }
+    }
+  ],
+  "ott": [
+    {
+      "id": "ott-01",
+      "code": "FLOW-OTT-01",
+      "category": "ott",
+      "title": "Sin Acceso Netflix",
+      "summary": "Validar registro en app Mi Claro, servicio Bundle vs Stand-Alone y link de activación.",
+      "initialStep": "s1",
+      "steps": {
+        "s1": {
+          "type": "action",
+          "title": "Validación Inicial de Registro en Mi Claro y Tipo de Plan",
+          "desc": "1. El cliente tiene que estar registrado en la app Mi Claro.<br>2. Verificar si el servicio es Bundle (facturado en paquete Claro) o Stand Alone (independiente).",
+          "actions": [
+            { "label": "¿El servicio es Bundle? (SÍ)", "nextStep": "s_bundle", "style": "primary" },
+            { "label": "NO es Bundle (Stand Alone)", "nextStep": "s_standalone", "style": "secondary" }
+          ]
+        },
+        "s_bundle": {
+          "type": "action",
+          "title": "Verificación de Correo y Link de Activación",
+          "desc": "Indicarle al cliente que revise el correo registrado donde se le envió el enlace de activación de Netflix.",
+          "actions": [
+            { "label": "¿Recibió el correo? (SÍ)", "nextStep": "s_abrir_link", "style": "primary" },
+            { "label": "NO recibió el correo", "nextStep": "end_escalamiento_360", "style": "danger" }
+          ]
+        },
+        "s_abrir_link": {
+          "type": "action",
+          "title": "Apertura de Link e Instrucciones de Plataforma",
+          "desc": "Indicarle que debe abrir el enlace recibido y seguir los pasos en netflix.com.",
+          "actions": [
+            { "label": "¿Pudo registrarse? (SÍ)", "nextStep": "end_solucion_ok", "style": "success" },
+            { "label": "NO pudo registrarse", "nextStep": "end_escalamiento_360", "style": "danger" }
+          ]
+        },
+        "s_standalone": {
+          "type": "action",
+          "title": "Confirmación de Titularidad en App Mi Claro",
+          "desc": "Indicarle al cliente que ingrese a la app Mi Claro y proceda a realizar la confirmación de titularidad con el código PIN que se le envía a su correo.",
+          "actions": [
+            { "label": "¿Recibió el PIN? (SÍ)", "nextStep": "s_activar_membresia", "style": "primary" },
+            { "label": "NO recibió el PIN", "nextStep": "end_escalamiento_360_pin", "style": "danger" }
+          ]
+        },
+        "s_activar_membresia": {
+          "type": "action",
+          "title": "Elección de Plan e Inicio de Membresía",
+          "desc": "Indicarle que escoja el plan deseado (Básico, Estándar, Premium), configure los dispositivos de uso e inicie la membresía.",
+          "actions": [
+            { "label": "¿Pudo activar el servicio? (SÍ)", "nextStep": "end_solucion_ok", "style": "success" },
+            { "label": "NO pudo activar el servicio", "nextStep": "end_escalamiento_360", "style": "danger" }
+          ]
+        },
+        "end_escalamiento_360": {
+          "type": "terminal",
+          "badge": "Escalamiento Especializado",
+          "badgeColor": "bg-amber-600",
+          "title": "Realizar el escalamiento por Mi Asistencia 360",
+          "desc": "Se requiere: Número de cuenta, Documento de identidad, Correo registrado y Captura del mensaje de error que arroja al activar. Documentar y tipificar.",
+          "tipification": "OTT // NETFLIX // ERROR DE ACTIVACIÓN / ENLACE NO LLEGA // SE ESCALA A MESA 360 CON DATOS DE TITULAR Y CAPTURA"
+        },
+        "end_escalamiento_360_pin": {
+          "type": "terminal",
+          "badge": "Escalamiento Especializado",
+          "badgeColor": "bg-amber-600",
+          "title": "Generar el escalamiento por Mi Asistencia 360 por error de activación",
+          "desc": "Falla en el envío del código OTP de confirmación.",
+          "tipification": "OTT // NETFLIX STAND ALONE // PIN DE VALIDACIÓN NO RECIBIDO // SE ESCALA A ASISTENCIA 360"
+        },
+        "end_solucion_ok": {
+          "type": "terminal",
+          "badge": "Solución Exitosa",
+          "badgeColor": "bg-emerald-600",
+          "title": "Documentar, tipificar y finalizar interacción con el cliente",
+          "desc": "Cuenta de Netflix vinculada y activa para reproducir contenidos.",
+          "tipification": "OTT // NETFLIX ACTIVADO // MEMBRESÍA VINCULADA SATISFACTORIAMENTE // FIN DE GESTIÓN"
+        }
+      }
+    }
+  ]
+}
