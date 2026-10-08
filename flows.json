@@ -2178,12 +2178,12 @@
     "s1": {
       "tip": "1. Garantizar que no tenga servidores Proxy configurados, la conexión sea directa al CM y no tenga una ip o DNS configurado de forma manual o algún bloqueo por firewall del sistema de seguridad del cliente.<br>2. Si el cliente tiene otros dispositivos conectados a la misma red (otros PC, smartphones, dispositivos de streaming, etc.), podrían estar consumiendo ancho de banda. Intentar desconectar otros dispositivos y validar de nuevo.<br>3. Si la falla no se presenta en otros equipos del cliente recomendar validar con el técnico de confianza.<br>4. Cambia de navegador: Si estás usando un navegador específico, prueba con otro (por ejemplo, si usas Chrome, prueba Firefox, Edge, etc.) para ver si el problema persiste. A veces, el problema puede ser específico de un navegador.<br>5. Limpia el caché y las cookies: Si el problema persiste en el mismo navegador, limpia la caché y las cookies del navegador, ya que a veces estos archivos temporales pueden causar problemas de acceso a páginas web.<br>6. En Chrome: Configuración > Privacidad y seguridad > Borrar datos de navegación > selecciona (Cookies y otros datos de sitios) y (Imágenes y archivos en caché.)<br>7. En Firefox: Menú > Configuración > Privacidad y seguridad > Cookies y datos del sitio > Limpiar datos.<br>8. Si la falla no se presenta en otros equipos del cliente recomendar validar con el técnico de confianza.<br>10. realizar la prueba con un dispositivo móvil con datos para confirmar que la página no tenga inconvenientes ",
       "type": "action",
-      "title": "Prueba de Acceso y PING a Dominio vs IP",
+      "title": "Prueba de Acceso y PING a Dominio ",
       "desc": "Hacer ping a la IP del sitio de falla desde desde el CMD del cliente y confimar si la IP empieza por 5.XXX.X.X O 10.XX.X.",
       "actions": [
         {
           "label": "¿La pagina inicia por 5. o 10.? (SÍ)",
-          "nextStep": "end_escalamiento_evidencias",
+          "nextStep": "end_escalamiento_ip",
           "style": "danger"
         },
         {
@@ -2199,12 +2199,12 @@
         "desc": "Pedirle al cliente que oprima la tecla windows y R al mismo tiempo.<br>2. En el cuadro de diálogo que se abre escribir CMD y enter.<br>3. Una vez dentro del DOS pedirle que ejecute el comando: ping -t www.xxx.com, siendo las X la dirección de la página",
         "actions": [
             {
-                "label":"¿Pudo realizar el ping efectivo? (SI)",
+                "label":"¿Pudo realizar el ping de manera efectiva? (SI)",
                 "nextStep": "end_ping_efectivo",
                 "style": "success"
             },
             {
-                "label": "¿Pudo realizar el ping efectivo? (NO)",
+                "label": "¿Pudo realizar el ping de manera efectiva? (NO)",
                 "nextStep": "s_tracert",
                 "style": "danger"
             }
@@ -2219,7 +2219,7 @@
         "actions": [
             {
                 "label": "¿Falla en los primeros 3 saltos? (NO)",
-                "nextStep": "",
+                "nextStep": "end_no_Red",
                 "style": "success"
             },
             {
@@ -2242,7 +2242,7 @@
         },
         {
           "label": "Falla Persiste ",
-          "nextStep": "end_visita_dns",
+          "nextStep": "s_avanzada",
           "style": "danger"
         }
       ]
@@ -2254,7 +2254,7 @@
         "actions":[
             {
                 "label": "¿Falla persiste? (SÍ)",
-                "nextStep": "",
+                "nextStep": "s_wan",
                 "style": "danger"
             },
             {
@@ -2267,13 +2267,20 @@
     },
     "s_wan": {
         "type": "action",
-        "title": "Renovacion de IP",
+        "title": "Renovacion o configuracion de IP",
         "desc": "Si el CM permite renovar la IP WAN, realizarlo de lo contrario, configurar una IP estática en la WAN.",
         "actions":[
             {
                 "label": "¿Falla persiste? (SÍ)",
-                "nextStep": "end_"
+                "nextStep": "s_dns_fix",
+                "style":"danger"
+            },
+            {
+                "label": "¿Falla persiste? (NO)",
+                "nextStep": "end_solucion_ok",
+                "style": "success"
             }
+        
         ]
 
     },
@@ -2289,7 +2296,7 @@
         },
         {
           "label": "Sigue sin cargar (NO)",
-          "nextStep": "s_firewall",
+          "nextStep": "end_escalamiento_evidencias",
           "style": "danger"
         }
       ]
@@ -2343,8 +2350,17 @@
         "badge": "Escalamiento Por Plataforma",
         "badgeColor":"bg-red-600",
         "title": "Evidencia para escalamiento de caso",
-        "desc": "generar un escalamiento por plataforma, por lo que es necesario aportar las evidencias (print) donde se muestre la IP que toma la página. ",
+        "desc": "Generar un escalamiento por plataforma, por lo que es necesario aportar las evidencias (print) donde se muestre la IP que toma la página. ",
               "tipification": "INTERNET HFC // PROBLEMA CON IP DE PLATAFORMA // SIN ACCESO A WEB // CREACION DE INC POR PLATAFORMA"
+
+    },
+    "end_no_Red": {
+        "type": "terminal",
+        "badge": "Solución Problema Externo a Claro",
+        "badgeColor": "bg-emerald-600",
+        "title": "Documentar y finalizar interacción",
+        "desc": "indicarle al cliente que la falla es de manera externa y no corresponde a falla en red nuestra.",
+        "tipification": "INTERNET HFC // ACCESO WEB NORMALIZADO POR PROBLEMAS DE HOST // PROBLEMA RED EXTERNA AJENA CLARO"
 
     },
     "end_solucion_ok": {
@@ -2356,7 +2372,213 @@
       "tipification": "INTERNET HFC // DNS REFRESCADO // ACCESO WEB NORMALIZADO"
     }
   }
-}   
+},
+{
+  "id": "int-21",
+  "code": "FLOW-INT-21",
+  "category": "internet",
+  "title": "Sin Acceso a Páginas Específicas FTTH",
+  "summary": "Descarte de bloqueo por DNS, proxy, control parental y MTU", 
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "tip": "1. Garantizar que no tenga servidores Proxy configurados, la conexión sea directa al CM y no tenga una ip o DNS configurado de forma manual o algún bloqueo por firewall del sistema de seguridad del cliente.<br>2. Si el cliente tiene otros dispositivos conectados a la misma red (otros PC, smartphones, dispositivos de streaming, etc.), podrían estar consumiendo ancho de banda. Intentar desconectar otros dispositivos y validar de nuevo.<br>3. Si la falla no se presenta en otros equipos del cliente recomendar validar con el técnico de confianza.<br>4. Cambia de navegador: Si estás usando un navegador específico, prueba con otro (por ejemplo, si usas Chrome, prueba Firefox, Edge, etc.) para ver si el problema persiste. A veces, el problema puede ser específico de un navegador.<br>5. Limpia el caché y las cookies: Si el problema persiste en el mismo navegador, limpia la caché y las cookies del navegador, ya que a veces estos archivos temporales pueden causar problemas de acceso a páginas web.<br>6. En Chrome: Configuración > Privacidad y seguridad > Borrar datos de navegación > selecciona (Cookies y otros datos de sitios) y (Imágenes y archivos en caché.)<br>7. En Firefox: Menú > Configuración > Privacidad y seguridad > Cookies y datos del sitio > Limpiar datos.<br>8. Si la falla no se presenta en otros equipos del cliente recomendar validar con el técnico de confianza.<br>10. realizar la prueba con un dispositivo móvil con datos para confirmar que la página no tenga inconvenientes ",
+      "type": "action",
+      "title": "Prueba de Acceso y PING a Dominio ",
+      "desc": "Hacer ping a la IP del sitio de falla desde desde el CMD del cliente y confimar si la IP empieza por 5.XXX.X.X O 10.XX.X.",
+      "actions": [
+        {
+          "label": "¿La pagina inicia por 5. o 10.? (SÍ)",
+          "nextStep": "end_escalamiento_ip",
+          "style": "danger"
+        },
+        {
+          "label": "¿La pagina inicia por 5. o 10.? (NO)",
+          "nextStep": "s_cmd",
+          "style": "primary"
+        }
+      ]
+    },
+    "s_cmd":{
+        "type": "action",
+        "title": "Realizar ping desde el CMD del cliente a pagina con falla ",
+        "desc": "Pedirle al cliente que oprima la tecla windows y R al mismo tiempo.<br>2. En el cuadro de diálogo que se abre escribir CMD y enter.<br>3. Una vez dentro del DOS pedirle que ejecute el comando: ping -t www.xxx.com, siendo las X la dirección de la página",
+        "actions": [
+            {
+                "label":"¿Pudo realizar el ping de manera efectiva? (SI)",
+                "nextStep": "end_ping_efectivo",
+                "style": "success"
+            },
+            {
+                "label": "¿Pudo realizar el ping de manera efectiva? (NO)",
+                "nextStep": "s_tracert",
+                "style": "danger"
+            }
+            
+        ]
+
+    },
+    "s_tracert": {
+        "type": "action",
+        "title": "Revision de Host de pagina de referencia",
+        "desc": "Pedirle al cliente que realice el comando: tracert XXX.XXX.XXX.XX, siendo X la ip de la página.<br>2. Validar ¿en qué? salto se pierde la conectividad, si se presenta en los 3 primeros la afectación es del equipo del cliente, CM o red Claro.<br>3. Si se presenta en los siguientes, hace referencia a el host donde se aloja la página.<br>4. Si el cliente no puede ejecutar el comando, realízalo desde la administración del CM.",
+        "actions": [
+            {
+                "label": "¿Falla en los primeros 3 saltos? (NO)",
+                "nextStep": "end_no_Red",
+                "style": "success"
+            },
+            {
+                "label": "¿Falla en los primeros 3 saltos? (SI)",
+                "nextStep": "s3_reinicio",
+                "style": "danger"
+            }
+        ]
+
+    },
+    "s3_reinicio": {
+      "type": "action",
+      "title": "Reinicio de CM y Dispositivo",
+      "desc": "Reiniciar el CM  desde diagnosticador .",
+      "actions": [
+        {
+          "label": "¿Falla normalizada?",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "Falla Persiste ",
+          "nextStep": "s_avanzada",
+          "style": "danger"
+        }
+      ]
+    },
+    "s_avanzada": {
+        "type":"action",
+        "title": "Configuracion Pastrough/DMZ",
+        "desc": "Generar una configuración avanzada (pastrough, DMZ) al equipo que conecta al cliente y reinicia el CM.",
+        "actions":[
+            {
+                "label": "¿Falla persiste? (SÍ)",
+                "nextStep": "s_wan",
+                "style": "danger"
+            },
+            {
+                "label": "¿Falla persiste? (NO)",
+                "nextStep": "end_solucion_ok",
+                "style": "success"
+            }
+        ]
+
+    },
+    "s_wan": {
+        "type": "action",
+        "title": "Renovacion o configuracion de IP",
+        "desc": "Si el CM permite renovar la IP WAN, realizarlo de lo contrario, configurar una IP estática en la WAN.",
+        "actions":[
+            {
+                "label": "¿Falla persiste? (SÍ)",
+                "nextStep": "s_aprovisionamiento",
+                "style":"danger"
+            },
+            {
+                "label": "¿Falla persiste? (NO)",
+                "nextStep": "end_solucion_ok",
+                "style": "success"
+            }
+        
+        ]
+
+    },
+    "s_dns_fix": {
+      "type": "action",
+      "title": "Limpieza de Caché DNS y Configuración de DNS Primario",
+      "desc": "Ejecutar ipconfig /flushdns y asignar DNS públicos Claro o 8.8.8.8 en adaptador.",
+      "actions": [
+        {
+          "label": "¿Pudo navegar? (SÍ)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "Sigue sin cargar (NO)",
+          "nextStep": "end_escalamiento_evidencias",
+          "style": "danger"
+        }
+      ]
+    },
+    "s_aprovisionamiento": {
+      "type": "action",
+      "title": "Aprovisionamiento de Ont",
+      "desc": "Validar aprovisionamiento desde modulo de gestión en la opcion (Reparar)",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s_dns_fix",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_dns": {
+      "type": "terminal",
+      "badge": "Escalamiento N2",
+      "badgeColor": "bg-amber-600",
+      "title": "Escalar caso a Soporte Operativo 2 / Ruteo IP",
+      "desc": "Falla de resolución o enrutamiento externo hacia sitios puntuales.",
+      "tipification": "INTERNET FTTH // SIN ACCESO A PÁGINAS ESPECÍFICAS // DNS DESCARTADO // SE ESCALA A N2"
+
+    },
+    "end_ping_efectivo":{
+        "type": "terminal",
+      "badge": "Recomendaciones a Cliente",
+      "badgeColor": "bg-amber-600",
+      "title": "Conectividad por pagina",
+      "desc": "Indicarle al cliente que el CM tiene conectividad con la página, por lo que debe descartar antivirus, configuragión de proxi u otro aplicativo de seguridad del equipo o navegador. ",
+      "tipification": "INTERNET FTTH // ACCESO A PÁGINA WEB NORMALIZADO // DESCARTAR ANTIVIRUS // "
+
+    },
+    "end_escalamiento_evidencias":{
+        "type": "terminal",
+        "badge" : "Escalamiento BackOffice de Internet",
+        "badgeColor": "bg-indigo-600",
+        "title": "Documentos a evidenciar",
+        "desc": "1. Seriales de ONT`s reportados, Modelo, versión de Firmware (ADJUNTA)<br>2. Teléfonos de contacto del cliente, Dirección, TRK, OLT (NA)<br>3. Relacionar IP publica que está tomando (en google colocar cual es mi ip y usar cualquiera de las URL) (ADJUNTA)<br>4. Adjuntar pruebas: trazas, pin. (las pruebas se deben hacer con la conexión directa a la ONT por cable) sobre la página (s) que reporta el cliente sin acceso. (ADJUNTA) <br>5. nslookup sobre las páginas que reporta el cliente sin acceso (anexar print) (NA)<br>6. Realizar ping desde consola (CMD) a las Url que reporta el cliente y a la ip de la pagina (Anexar print) (ADJUNTA)<br>7. Desde el navegador abrir la dirección ip de la página en falla (Anexar print) (ADJUNTA)",
+        "tipification": "INTERNET FTTH // PROBLEMA CON IP DE PLATAFORMA // SIN ACCESO A WEB // CREACION DE INC POR PLATAFORMA"
+
+    },
+    "end_escalamiento_ip":{
+        "type": "terminal",
+        "badge": "Escalamiento Por Plataforma",
+        "badgeColor":"bg-red-600",
+        "title": "Evidencia para escalamiento de caso",
+        "desc": "Generar un escalamiento por plataforma, por lo que es necesario aportar las evidencias (print) donde se muestre la IP que toma la página. ",
+        "tipification": "INTERNET FTTH // PROBLEMA CON IP DE PLATAFORMA // SIN ACCESO A WEB // CREACION DE INC POR PLATAFORMA"
+
+    },
+    "end_no_Red": {
+        "type": "terminal",
+        "badge": "Solución Problema Externo a Claro",
+        "badgeColor": "bg-emerald-600",
+        "title": "Documentar y finalizar interacción",
+        "desc": "indicarle al cliente que la falla es de manera externa y no corresponde a falla en red nuestra.",
+        "tipification": "INTERNET FTTH // ACCESO WEB NORMALIZADO POR PROBLEMAS DE HOST // PROBLEMA RED EXTERNA AJENA CLARO"
+
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar y finalizar interacción",
+      "desc": "Sitios web cargan con normalidad.",
+      "tipification": "INTERNET FTTH // DNS REFRESCADO // ACCESO WEB NORMALIZADO"
+    }
+  }
+}
 
   ],
   "telefonia": [
@@ -2372,7 +2594,7 @@
           "type": "decision",
           "title": "Validar si en diagnosticador cuenta con IP de Telefonía",
           "desc": "Ingresar a la herramienta de diagnóstico y consultar la pestaña de VoIP del Cable Módem.",
-          "tip": "La IP de telefonía VoIP debe estar activa en el pool de voz.",
+          "tip": "1. Garantiza que no existan fallas de red externa, ni incidencias de plataforma<br>2. Si el cliente utiliza un teléfono inalámbrico, garantiza que se encuentre cerca de la base y con nivel de batería óptimo.<br>3. Si el cliente tiene derivaciones instaladas por claro, consulta si la falla es en el teléfono principal o en la derivación.<br>4. Si la falla corresponde a derivaciones, inicia el soporte por el flujo de derivaciones.", 
           "actions": [
             { "label": "Tiene IP de telefonía (SÍ)", "nextStep": "s2_con_ip", "style": "primary" },
             { "label": "NO tiene IP de telefonía", "nextStep": "s1_no_ip", "style": "danger" }
@@ -2381,7 +2603,7 @@
         "s1_no_ip": {
           "type": "action",
           "title": "Reinicio y Aprovisionamiento de Voz",
-          "desc": "1. Reiniciar el CM desde diagnosticador.<br>2. Enviar comando reparar.<br>3. Desprovisionar la línea por OT desde RR.<br>4. Restablecer de fábrica el equipo.",
+          "desc": "1. Reiniciar el CM desde diagnosticador.<br>2. Enviar comando reparar.<br>3. Reaprovisionar la línea por OT desde RR.<br>4. Restablecer de fábrica el equipo.",
           "actions": [
             { "label": "¿Tomó IP? (SÍ)", "nextStep": "s2_con_ip", "style": "primary" },
             { "label": "NO tomó IP de telefonía", "nextStep": "end_visita_tel_hfc", "style": "danger" }
@@ -2399,7 +2621,7 @@
         "s3_admin_cm": {
           "type": "decision",
           "title": "Ingresar a administración del CM y validar registro de telefonía",
-          "desc": "¿El registro de telefonía está completo o el puerto está en OFF / LOCK?",
+          "desc": "¿El registro de telefonía está completo o el puerto está en OFF / HOOK?",
           "actions": [
             { "label": "Puerto OFF / LOCK o Incompleto", "nextStep": "s3_restore", "style": "danger" },
             { "label": "Registro Completo / OK", "nextStep": "s4_cambio_puerto", "style": "primary" }
@@ -2411,7 +2633,7 @@
           "desc": "Ejecutar reset de fábrica para forzar la descarga del archivo de configuración eMTA.",
           "actions": [
             { "label": "Continúa falla de registro (SÍ)", "nextStep": "end_visita_tel_hfc", "style": "danger" },
-            { "label": "Registrado y con tono (NO)", "nextStep": "end_solucion_ok", "style": "success" }
+            { "label": "Registrado y con tono (NO)", "nextStep": "s4_cambio_puerto", "style": "primary" }
           ]
         },
         "s4_cambio_puerto": {
@@ -2440,7 +2662,976 @@
           "tipification": "TELEFONÍA HFC // LÍNEA CON TONO RESTABLECIDO // CASO FINALIZADO"
         }
       }
+    },
+    {
+  "id": "tel-02",
+  "code": "FLOW-TEL-02",
+  "category": "telefonia",
+  "title": "Línea Sin Tono FTTH",
+  "summary": "Validar IP en TR69, estado del servicio de voz en OLT y descarte de aparato.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Validar si la ONT cuenta con IP de Telefonía en Diagnosticador",
+      "desc": "Verificar en diagnosticador que la ONT FTTH tenga asignada IP de VoIP.",
+      "actions": [
+        {
+          "label": "Tiene IP (SÍ)",
+          "nextStep": "s2_tr69_active",
+          "style": "primary"
+        },
+        {
+          "label": "NO tiene IP",
+          "nextStep": "s1_no_ip_ftth",
+          "style": "danger"
+        }
+      ]
+    },
+    "s1_no_ip_ftth": {
+      "type": "action",
+      "title": "Reasociar ONT y Reprovisionar Línea",
+      "desc": "1. Reiniciar la ONT desde TR69.<br>2. Enviar comando reparar.<br>3. Reaprovisionar la línea por OT desde RR.<br>4. En TR69 deshabilitar y habilitar la IP de telefonía.",
+      "actions": [
+        {
+          "label": "¿Tomó IP? (SÍ)",
+          "nextStep": "s2_tr69_active",
+          "style": "primary"
+        },
+        {
+          "label": "NO tomó IP de telefonía",
+          "nextStep": "end_visita_ftth_tel",
+          "style": "danger"
+        }
+      ]
+    },
+    "s2_tr69_active": {
+      "type": "action",
+      "title": "Verificar Servicio Activo en TR69",
+      "desc": "Verificar si el servicio en TR69 está activo y no tiene simbolo de advertencia. Reiniciar desde diagnosticador la ONT.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3_puerto_ot",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3_puerto_ot": {
+      "type": "action",
+      "title": "Cambio de Puerto Telefónico por OT",
+      "desc": "Generar el cambio de puerto de telefonía por medio de OT y solicitar al cliente conectar el cable al nuevo puerto.",
+      "actions": [
+        {
+          "label": "¿Solucionó? (SÍ)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "Persiste sin tono (NO)",
+          "nextStep": "s4_aparato",
+          "style": "danger"
+        }
+      ]
+    },
+    "s4_aparato": {
+      "type": "action",
+      "title": "Descarte de Aparato Telefónico y Cable RJ11",
+      "desc": "Consultar al cliente si es posible realizar la prueba con otro cable RJ11 u otro teléfono físico.",
+      "actions": [
+        {
+          "label": "No tiene otro teléfono o persiste daño (SÍ)",
+          "nextStep": "end_visita_ftth_tel",
+          "style": "danger"
+        },
+        {
+          "label": "Con el nuevo teléfono sí funciona",
+          "nextStep": "end_dano_cliente",
+          "style": "primary"
+        }
+      ]
+    },
+    "end_dano_cliente": {
+      "type": "terminal",
+      "badge": "Aparato del Cliente Dañado",
+      "badgeColor": "bg-indigo-600",
+      "title": "Documentar y tipificar daño en equipo propio del cliente",
+      "desc": "La línea de Claro entrega tono correctamente; el teléfono del cliente está averiado.",
+      "tipification": "TELEFONÍA FTTH // SIN TONO // SE REALIZÓ DESCARTE CON OTRO APARATO Y FUNCIONA // FALLA EN TERMINAL DEL CLIENTE"
+    },
+    "end_visita_ftth_tel": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para revisión en predio",
+      "desc": "Falla física en puerto POTS de la ONT FTTH.",
+      "tipification": "TELEFONÍA FTTH // LÍNEA SIN TONO // CAMBIO DE PUERTO SIN SOLUCIÓN // SE PROGRAMA VISITA EN PREDIO"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Línea de telefonía FTTH operativa.",
+      "tipification": "TELEFONÍA FTTH // TONO RESTABLECIDO // CASO CERRADO"
     }
+  }
+},
+{
+  "id": "tel-03",
+  "code": "FLOW-TEL-03",
+  "category": "telefonia",
+  "title": "Sin Ingreso Total de Llamadas HFC",
+  "summary": "Prueba de llamada entrante, validación de estado RINGING y reprovisionamiento.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Realizar llamada de prueba al número del cliente",
+      "desc": "El agente debe marcar a la línea del cliente desde consola. ¿La línea repica normalmente?",
+      "actions": [
+        {
+          "label": "La línea repica (SÍ)",
+          "nextStep": "s2_repica",
+          "style": "primary"
+        },
+        {
+          "label": "NO repica (Ocupado / Desconectado)",
+          "nextStep": "s1_no_repica",
+          "style": "danger"
+        }
+      ]
+    },
+    "s1_no_repica": {
+      "type": "action",
+      "title": "Descarte Físico y Comando Reparar",
+      "desc": "1. Pedir al cliente que valide el volumen del timbre.<br>2. Confirmar que esté conectada en el puerto correcto.<br>3. Tomar en cuenta el mensaje de locución que arroja la llamada.<br>4. Enviar comando reparar desde aprovisionamiento.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s2_repica",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s2_repica": {
+      "type": "action",
+      "title": "Validar Estado RINGING en CM",
+      "desc": "Ingresar a la administración del CM y validar si al llamar el estado del puerto cambia a RINGING o no hace cambios.",
+      "actions": [
+        {
+          "label": "Cambia a RINGING (SÍ)",
+          "nextStep": "s3_actions_cm",
+          "style": "primary"
+        },
+        {
+          "label": "NO pasa a RINGING",
+          "nextStep": "s2_no_ringing",
+          "style": "danger"
+        }
+      ]
+    },
+    "s2_no_ringing": {
+      "type": "action",
+      "title": "Reaprovisionar Línea por OT",
+      "desc": "Reaprovisionar la línea por OT, enviar comando reparar y restablecer de fábrica el equipo.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3_actions_cm",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3_actions_cm": {
+      "type": "action",
+      "title": "Reinicio CM y Cambio de Puerto Telefónico",
+      "desc": "Reiniciar el CM, enviar comando reparar y cambiar el puerto por medio de OT.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s4_factory",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s4_factory": {
+      "type": "action",
+      "title": "Restablecimiento de Fábrica del Equipo",
+      "desc": "Ejecutar reset de fábrica del Cable Módem.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_in_calls",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_in_calls": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para revisión en predio",
+      "desc": "Falla en conmutación de timbrado o hardware de eMTA.",
+      "tipification": "TELEFONÍA HFC // SIN INGRESO DE LLAMADAS // NO CONMUTA RINGING // SE CAMBIA PUERTO Y REINICIA // REQUIERE VISITA EN PREDIO"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Llamadas entrantes ingresan y timbran con éxito.",
+      "tipification": "TELEFONÍA HFC // INGRESO DE LLAMADAS RESTABLECIDO // CASO EXITOSO"
+    }
+  }
+},
+{
+  "id": "tel-04",
+  "code": "FLOW-TEL-04",
+  "category": "telefonia",
+  "title": "Sin Ingreso Total de Llamadas FTTH",
+  "summary": "Prueba de llamada entrante, validación VoIP en TR69 y reinicio ONT.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Realizar llamada de prueba al número del cliente",
+      "desc": "¿La línea telefónica repica al recibir la llamada?",
+      "actions": [
+        {
+          "label": "La línea repica (SÍ)",
+          "nextStep": "s2_tr69_voip",
+          "style": "primary"
+        },
+        {
+          "label": "NO repica",
+          "nextStep": "s1_descarte_ont",
+          "style": "danger"
+        }
+      ]
+    },
+    "s1_descarte_ont": {
+      "type": "action",
+      "title": "Descarte Físico y Reinicio de ONT",
+      "desc": "1. Validar volumen de timbre<br>2. confirmar que está conectada por el puerto correcto.<br>3. Si arroja algún mensaje, tomar en cuenta el tipo de mensaje que arroja.<br>4. Reiniciar ONT.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s2_tr69_voip",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s2_tr69_voip": {
+      "type": "action",
+      "title": "Verificar en TR69 si la VoIP está en estado UP",
+      "desc": "1.Verificar en TR69 si la VOIP esta en estado UP.<br>2. Revisar que el servicio de VOIP tenga IP y esta se encuentre habilitada.<br>3. Enviar comando reparar desde aprovisionamiento.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3_actions_cm",
+          "style": "danger"
+        },
+        {
+          "label": "¿Falla persiste? (NO)",
+          "nextStep": "s3_repro_ftth",
+          "style": "primary"
+        }
+      ]
+    },
+    "s3_actions_cm": {
+      "type": "action",
+      "title": "Reinicio CM y Cambio de Puerto Telefónico",
+      "desc": "Reiniciar el CM, enviar comando reparar y cambiar el puerto por medio de OT.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s4_factory",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s4_factory": {
+      "type": "action",
+      "title": "Restablecimiento de Fábrica del Equipo",
+      "desc": "Ejecutar reset de fábrica de la ONT desde TR69",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_in_calls",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3_repro_ftth": {
+      "type": "action",
+      "title": "Reprovisionar Línea por OT y Reset de Fábrica",
+      "desc": "Reprovisionar por OT, cambiar de puerto POTS y ejecutar reset de fábrica.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_ftth_in",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_ftth_in": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para revisión en predio",
+      "desc": "Falla en recepción de señalización SIP en la ONT.",
+      "tipification": "TELEFONÍA FTTH // SIN INGRESO DE LLAMADAS // VOIP UP EN TR69 PERO NO TIMBRA // SE AGENDA VISITA TÉCNICA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Recepción de llamadas normalizada.",
+      "tipification": "TELEFONÍA FTTH // LLAMADAS ENTRANTES NORMALIZADAS"
+    }
+  }
+},
+{
+  "id": "tel-05",
+  "code": "FLOW-TEL-05",
+  "category": "telefonia",
+  "title": "Sin Salida Total de Llamadas HFC",
+  "summary": "Descarte de marcación, prefijos, bloqueo comercial y reaprovisionamiento.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Prueba de Números de Salida con el Cliente",
+      "desc": "Pedir al cliente uno o más números a los cuales no sale la llamada para verificar si funcionan o si arroja locución específica.",
+      "actions": [
+        {
+          "label": "Falla con todos los números ",
+          "nextStep": "s3_pruebas",
+          "style": "danger"
+        },
+        {
+          "label": "Solo falla con un número externo puntual",
+          "nextStep": "end_falla_destino",
+          "style": "primary"
+        }
+      ]
+    },
+    "end_falla_destino": {
+      "type": "terminal",
+      "badge": "Destino con Falla",
+      "badgeColor": "bg-indigo-600",
+      "title": "Informar al cliente falla en el número destino",
+      "desc": "La línea de Claro funciona correctamente. El número al que marca está fuera de servicio o bloqueado.",
+      "tipification": "TELEFONÍA HFC // LLAMADAS SALIENTES // FALLA ESPECÍFICA DE NÚMERO DE DESTINO // LÍNEA CLARO OPERATIVA"
+    },
+    "s3_pruebas": {
+        "type": "decision",
+      "title": "Consulta cual de estos escenarios presenta el cliente",
+      "desc": "Revisar cada estado para dar una posible solucion ",
+      "actions" :[
+        {
+            "label": "Las llamadas al 01900 no se pueden ejecutar desde la línea fija.",
+            "nextStep": "end_linea_fraude",
+            "style": "primary"
+        },
+        {
+            "label" : "Si la llamada es a una entidad, validar si existe linea fija en la ciudad de origen.",
+            "nextStep": "end_linea_fija",
+            "style": "primary"
+        },
+        {
+            "label": "Hay destinos restringidos por temas de apuestas y fraude.",
+            "nextStep": "end_linea_fraude",
+            "style": "secondary"
+        },
+        {
+            "label": "No es ninguno de los escenario mencionados",
+            "nextStep": "s2_tono",
+            "style": "secondary"
+        }
+      ]
+
+    },
+    "s2_tono": {
+      "type": "decision",
+      "title": "Validacion de Tono de Telefono",
+      "desc": "Pedirle al cliente que valide que el teléfono esté en la opción de tonos, de no ser así, cambiarlo a tonos y realizar una llamada de prueba.",
+      "actions": [
+        {
+          "label": "¿Tiene tono?",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "¿Sigue sin tono?",
+          "nextStep": "s3_repro_salida",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_bloqueo_comercial": {
+      "type": "terminal",
+      "badge": "Bloqueo Comercial",
+      "badgeColor": "bg-amber-600",
+      "title": "Transferir o indicar al cliente pago / desbloqueo",
+      "desc": "La línea se encuentra restringida por área comercial o mora.",
+      "tipification": "TELEFONÍA HFC // SIN SALIDA DE LLAMADAS // SUSPENSIÓN POR COBRANZA / BLOQUEO COMERCIAL"
+    },
+    "end_linea_fraude": {
+      "type": "terminal",
+      "badge": "Bloqueo Comercial",
+      "badgeColor": "bg-amber-600",
+      "title": "Brindar la información al cliente",
+      "desc": "Indicarle al cliente que la linea tiene una restricción para ese tipo de llamadas por políticas de los operadores para no generar conexión con ese tipo de números",
+      "tipification": "TELEFONÍA HFC // SIN SALIDA DE LLAMADAS // RESTRICCION COMERCIAL"
+    },
+    "end_linea_fija": {
+      "type": "terminal",
+      "badge": "Bloqueo Comercial",
+      "badgeColor": "bg-amber-600",
+      "title": "Brindar la información al cliente",
+      "desc": "Indicarle que en este caso debe contactarse con la linea fija de la ciudad de la entidad ya que al estar habilitada no se puede hacer uso de la linea nacional",
+      "tipification": "TELEFONÍA HFC // SIN SALIDA DE LLAMADAS // RESTRICCION COMERCIAL"
+    },
+    "s3_repro_salida": {
+      "type": "action",
+      "title": "Comando Reparar y Reinicio de CM",
+      "desc": " Reaprovisionar linea por OT, Enviar comando reparar, Restablecer de fabrica el equipo.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_out_calls",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_out_calls": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para revisión en predio",
+      "desc": "No permite salida de llamadas tras descartar prefijos y aprovisionamiento.",
+      "tipification": "TELEFONÍA HFC // SIN SALIDA DE LLAMADAS // PROTOCOLO SIP SIN SALIDA // PROGRAMADA VISITA EN PREDIO"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción",
+      "desc": "Llamadas salientes habilitadas.",
+      "tipification": "TELEFONÍA HFC // SALIDA DE LLAMADAS OK"
+    }
+  }
+},
+{
+  "id": "tel-06",
+  "code": "FLOW-TEL-06",
+  "category": "telefonia",
+  "title": "Sin Salida Total de Llamadas FTTH",
+  "summary": "Descarte de marcación, prefijos, bloqueo comercial y reaprovisionamiento.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Prueba de Números de Salida con el Cliente",
+      "desc": "Pedir al cliente uno o más números a los cuales no sale la llamada para verificar si funcionan o si arroja locución específica.",
+      "actions": [
+        {
+          "label": "Falla con todos los números ",
+          "nextStep": "s3_pruebas",
+          "style": "danger"
+        },
+        {
+          "label": "Solo falla con un número externo puntual",
+          "nextStep": "end_falla_destino",
+          "style": "primary"
+        }
+      ]
+    },
+    "end_falla_destino": {
+      "type": "terminal",
+      "badge": "Destino con Falla",
+      "badgeColor": "bg-indigo-600",
+      "title": "Informar al cliente falla en el número destino",
+      "desc": "La línea de Claro funciona correctamente. El número al que marca está fuera de servicio o bloqueado.",
+      "tipification": "TELEFONÍA FTTH // LLAMADAS SALIENTES // FALLA ESPECÍFICA DE NÚMERO DE DESTINO // LÍNEA CLARO OPERATIVA"
+    },
+    "s3_pruebas": {
+        "type": "decision",
+      "title": "Consulta cual de estos escenarios presenta el cliente",
+      "desc": "Revisar cada estado para dar una posible solucion ",
+      "actions" :[
+        {
+            "label": "Las llamadas al 01900 no se pueden ejecutar desde la línea fija.",
+            "nextStep": "end_linea_fraude",
+            "style": "primary"
+        },
+        {
+            "label" : "Si la llamada es a una entidad, validar si existe linea fija en la ciudad de origen.",
+            "nextStep": "end_linea_fija",
+            "style": "primary"
+        },
+        {
+            "label": "Hay destinos restringidos por temas de apuestas y fraude.",
+            "nextStep": "end_linea_fraude",
+            "style": "secondary"
+        },
+        {
+            "label": "No es ninguno de los escenario mencionados",
+            "nextStep": "s2_tono",
+            "style": "secondary"
+        }
+      ]
+
+    },
+    "s2_tono": {
+      "type": "decision",
+      "title": "Validacion de Tono de Telefono",
+      "desc": "Pedirle al cliente que valide que el teléfono esté en la opción de tonos, de no ser así, cambiarlo a tonos y realizar una llamada de prueba.",
+      "actions": [
+        {
+          "label": "¿Tiene tono?",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "¿Sigue sin tono?",
+          "nextStep": "s3_repro_salida",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_bloqueo_comercial": {
+      "type": "terminal",
+      "badge": "Bloqueo Comercial",
+      "badgeColor": "bg-amber-600",
+      "title": "Transferir o indicar al cliente pago / desbloqueo",
+      "desc": "La línea se encuentra restringida por área comercial o mora.",
+      "tipification": "TELEFONÍA FTTH // SIN SALIDA DE LLAMADAS // SUSPENSIÓN POR COBRANZA / BLOQUEO COMERCIAL"
+    },
+    "end_linea_fraude": {
+      "type": "terminal",
+      "badge": "Bloqueo Comercial",
+      "badgeColor": "bg-amber-600",
+      "title": "Brindar la información al cliente",
+      "desc": "Indicarle al cliente que la linea tiene una restricción para ese tipo de llamadas por políticas de los operadores para no generar conexión con ese tipo de números",
+      "tipification": "TELEFONÍA FTTH // SIN SALIDA DE LLAMADAS // RESTRICCION COMERCIAL"
+    },
+    "end_linea_fija": {
+      "type": "terminal",
+      "badge": "Bloqueo Comercial",
+      "badgeColor": "bg-amber-600",
+      "title": "Brindar la información al cliente",
+      "desc": "Indicarle que en este caso debe contactarse con la linea fija de la ciudad de la entidad ya que al estar habilitada no se puede hacer uso de la linea nacional",
+      "tipification": "TELEFONÍA FTTH // SIN SALIDA DE LLAMADAS // RESTRICCION COMERCIAL"
+    },
+    "s3_repro_salida": {
+      "type": "action",
+      "title": "Comando Reparar y Reinicio de ONT",
+      "desc": " Reaprovisionar linea por OT, Enviar comando reparar, Deshabilitar y habilitar la IP de telefonía desde TR69",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_out_calls",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_out_calls": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para revisión en predio",
+      "desc": "No permite salida de llamadas tras descartar prefijos y aprovisionamiento.",
+      "tipification": "TELEFONÍA FTTH // SIN SALIDA DE LLAMADAS // PROTOCOLO SIP SIN SALIDA // PROGRAMADA VISITA EN PREDIO"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción",
+      "desc": "Llamadas salientes habilitadas.",
+      "tipification": "TELEFONÍA FTTH // SALIDA DE LLAMADAS OK"
+    }
+  }
+},
+{
+  "id": "tel-07",
+  "code": "FLOW-TEL-07",
+  "category": "telefonia",
+  "title": "Mala Calidad de Voz HFC",
+  "summary": "Ruido en línea, eco, entrecortado, cable RJ11 y puerto eMTA.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Consultar si la falla es en todas las llamadas o solo con algunas",
+      "desc": "Determinar si el ruido o interferencia es constante en cualquier comunicación.",
+      "actions": [
+        {
+          "label": "En todas las llamadas (SÍ)",
+          "nextStep": "s3_reinicio",
+          "style": "danger"
+        },
+        {
+          "label": "Solo en algunas (NO)",
+          "nextStep": "end_solucion_externa",
+          "style": "primary"
+        }
+      ]
+    },
+    "end_solucion_externa": {
+      "type": "terminal",
+      "badge": "Falla Externa / Interconexión",
+      "badgeColor": "bg-indigo-600",
+      "title": "Indicar afectación del operador receptor o señal del móvil",
+      "desc": "Al no ser constante, la calidad de línea de Claro cumple parámetros de audio.",
+      "tipification": "TELEFONÍA HFC // RUIDO ESPORÁDICO EN LLAMADA AISLADA // NO ES FALLA GENERAL // CASO DOCUMENTADO"
+    },
+    "s2_rj11": {
+      "type": "action",
+      "title": "Descarte de Cable RJ11 y Base Inalámbrica",
+      "desc": "Alejar la base telefónica del módem WiFi (mínimo 1 metro para evitar interferencia electromagnética). Probar otro cable telefónico.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3_reparar_hfc",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3_reinicio": {
+      "type": "action",
+      "title": "Reinicio de CM y Dispositivo",
+      "desc": "Reiniciar el CM y pedir al cliente que reinicie su equipo.",
+      "actions": [
+        {
+          "label": "¿Se normalizo el audio?",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "¿Continua con problemas?",
+          "nextStep": "s3_reparar_hfc",
+          "style": "danger"
+        }
+      ]
+    },
+    "s3_reparar_hfc": {
+      "type": "action",
+      "title": "Aprovisionamiento por OT y Aprovisionamiento por modulo de gestions",
+      "desc": "1. Realizar un aprovisionamiento por medio de OT al  puerto<br>2. Enviar comando reparar desde aprovisionamiento",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_voz_hfc",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_voz_hfc": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para revisión en predio",
+      "desc": "Ruido físico en puerto eMTA o niveles de RF deficientes.",
+      "tipification": "TELEFONÍA HFC // MALA CALIDAD DE VOZ // RUIDO PERSISTE // DESCARTADA INTERFERENCIA WIFI // VISITA EN PREDIO"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar",
+      "desc": "Audio nítido sin ruido de fondo.",
+      "tipification": "TELEFONÍA HFC // CALIDAD DE VOZ RESTABLECIDA"
+    }
+  }
+},
+{
+  "id": "tel-08",
+  "code": "FLOW-TEL-08",
+  "category": "telefonia",
+  "title": "Mala Calidad de Voz FTTH",
+  "summary": "Ruido en línea, eco, tecleo durante interacción, cable RJ11 y puerto ONT.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Consultar si la falla es en todas las llamadas o solo con algunas",
+      "desc": "Determinar si el ruido o interferencia es constante en cualquier comunicación.",
+      "actions": [
+        {
+          "label": "En todas las llamadas",
+          "nextStep": "s3_reinicio",
+          "style": "primary"
+        },
+        {
+          "label": "Solo en algunas",
+          "nextStep": "end_solucion_externa",
+          "style": "primary"
+        },
+        {
+            "label": "Suena tecleo durante la interacción",
+            "nextStep": "s2_tr69_voip",
+            "style": "secondary"
+        }
+      ]
+    },
+    "end_solucion_externa": {
+      "type": "terminal",
+      "badge": "Falla Externa / Interconexión",
+      "badgeColor": "bg-indigo-600",
+      "title": "Indicar afectación del operador receptor o señal del móvil",
+      "desc": "Al no ser constante, la calidad de línea de Claro cumple parámetros de audio.",
+      "tipification": "TELEFONÍA HFC // RUIDO ESPORÁDICO EN LLAMADA AISLADA // NO ES FALLA GENERAL // CASO DOCUMENTADO"
+    },
+    "s2_tr69_voip": {
+      "type": "action",
+      "title": "Verificar en TR69 si la VoIP está en estado UP",
+      "desc": "Ingresar a TR69, -Device Settings-Tab view-voip voice profile 1 DTMFMethodG711 y cambiar el parámetro a RFC28833.",
+      "actions": [
+        {
+          "label": "¿Falla Persiste?",
+          "nextStep": "s3_reinicio",
+          "style": "danger"
+        },
+        {
+          "label": "¿Falla normalizada?",
+          "nextStep": "s3_repro_ftth",
+          "style": "success"
+        }
+      ]
+    },
+    "s3_reinicio": {
+      "type": "action",
+      "title": "Valida linea del cliente y Reinicio ONT ",
+      "desc": "Realiza una llamada de prueba al número del cliente para saber si se reproduce la falla, Realizar un reinicio desde diagnosticador. ",
+      "actions": [
+        {
+          "label": "¿Se normalizo el audio?",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "¿Continua con problemas?",
+          "nextStep": "s3_reparar_hfc",
+          "style": "danger"
+        }
+      ]
+    },
+    "s3_reparar_hfc": {
+      "type": "action",
+      "title": "Aprovisionamiento por OT y Aprovisionamiento por modulo de gestions",
+      "desc": "1. Realizar un aprovisionamiento por medio de OT al  puerto<br>2. Enviar comando reparar desde aprovisionamiento",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_voz_hfc",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_voz_hfc": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para revisión en predio",
+      "desc": "Ruido físico en puerto eMTA o niveles de RF deficientes.",
+      "tipification": "TELEFONÍA FTTH // MALA CALIDAD DE VOZ // RUIDO PERSISTE // DESCARTADA INTERFERENCIA WIFI // VISITA EN PREDIO"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar",
+      "desc": "Audio nítido sin ruido de fondo.",
+      "tipification": "TELEFONÍA FTTH // CALIDAD DE VOZ RESTABLECIDA"
+    }
+  }
+},
+{
+  "id": "tel-09",
+  "code": "FLOW-TEL-09",
+  "category": "telefonia",
+  "title": "Falla en Derivaciones HFC/FTTH",
+  "summary": "Validación de derivación interna instalada por Claro vs Tercero, cobro OT $31.000.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Consultar si la derivación fue instalada por Claro",
+      "desc": "Aplica para sin tono, sin salida o sin ingreso de llamadas en teléfonos adicionales de la casa.",
+      "actions": [
+        {
+          "label": "Derivación instalada por Claro (SÍ)",
+          "nextStep": "s2_claro",
+          "style": "primary"
+        },
+        {
+          "label": "Derivación NO es de Claro (Tercero)",
+          "nextStep": "s2_tercero",
+          "style": "danger"
+        }
+      ]
+    },
+    "s2_claro": {
+      "type": "action",
+      "title": "Conectar Teléfono Directo al CM/ONT (Puerto 01/02)",
+      "desc": "Pedir al cliente que conecte el teléfono de la derivación directamente al módem por el puerto 01/02 y haga prueba.",
+      "actions": [
+        {
+          "label": "¿La falla persiste directo en el módem? (SÍ)",
+          "nextStep": "end_redir_falla_general",
+          "style": "danger"
+        },
+        {
+          "label": "Directo sí funciona (Falla en derivación) (NO)",
+          "nextStep": "end_visita_claro_mantenimiento",
+          "style": "primary"
+        }
+      ]
+    },
+    "end_redir_falla_general": {
+      "type": "terminal",
+      "badge": "Redirección de Flujo",
+      "badgeColor": "bg-indigo-600",
+      "title": "Iniciar el flujo por la falla general que presenta (sin tono, sin salida o sin ingreso)",
+      "desc": "Al no funcionar directo al módem, el problema es de la línea principal y no de la extensión.",
+      "tipification": "TELEFONÍA // DERIVACIÓN DESCARTADA // LA LÍNEA PRINCIPAL TIENE LA FALLA // SE INICIA FLUJO GENERAL"
+    },
+    "end_visita_claro_mantenimiento": {
+      "type": "terminal",
+      "badge": "Mantenimiento Sin Costo",
+      "badgeColor": "bg-claro",
+      "title": "Programar un mantenimiento a la vivienda del cliente. Documentar, tipificar y finalizar",
+      "desc": "Al ser instalación certificada por Claro, el mantenimiento en la extensión es gratuito para el usuario.",
+      "tipification": "TELEFONÍA // FALLA EN DERIVACIÓN INSTALADA POR CLARO // PRUEBA DIRECTA AL CM FUNCIONA // SE PROGRAMA MANTENIMIENTO SIN COSTO"
+    },
+    "s2_tercero": {
+      "type": "action",
+      "title": "Prueba Directa al Módem y Decisión Comercial",
+      "desc": "Pedir al cliente que conecte el teléfono de la derivación directamente al módem por el puerto 01/02.",
+      "actions": [
+        {
+          "label": "Directo al módem SÍ funciona (Extensión dañada)",
+          "nextStep": "s3_costo_ot",
+          "style": "danger"
+        },
+        {
+          "label": "Directo al módem NO funciona",
+          "nextStep": "end_redir_falla_general",
+          "style": "primary"
+        }
+      ]
+    },
+    "s3_costo_ot": {
+      "type": "decision",
+      "title": "Indicar valor de instalación de derivación por OT ($31.000)",
+      "desc": "Indicarle al cliente que para reparar o certificar una extensión de terceros se debe generar una OT por valor de $31.000.",
+      "actions": [
+        {
+          "label": "Cliente Acepta Costo ($31.000) (SÍ)",
+          "nextStep": "end_ot_aprobada",
+          "style": "success"
+        },
+        {
+          "label": "Cliente NO Acepta Costo",
+          "nextStep": "end_ot_rechazada",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_ot_aprobada": {
+      "type": "terminal",
+      "badge": "OT Creada con Cobro",
+      "badgeColor": "bg-emerald-600",
+      "title": "Se crea la OT por $31.000, se agenda y se confirman datos al cliente",
+      "desc": "El cliente autorizó el cobro en factura para la nueva acometida telefónica interna.",
+      "tipification": "TELEFONÍA // DERIVACIÓN DE TERCERO DAÑADA // CLIENTE ACEPTA COBRO OT $31.000 // SE AGENDA Y CONFIRMAN DATOS"
+    },
+    "end_ot_rechazada": {
+      "type": "terminal",
+      "badge": "Servicio No Garantizado",
+      "badgeColor": "bg-slate-700",
+      "title": "Informar al cliente que no se garantizan instalaciones de terceros",
+      "desc": "Se informa que el servicio directo al módem se encuentra óptimo. Documentar y tipificar el caso.",
+      "tipification": "TELEFONÍA // FALLA EN EXTENSIÓN DE TERCEROS // CLIENTE NO ACEPTA VALOR DE DERIVACIÓN $31.000 // SERVICIO OPERATIVO EN PUERTO CM"
+    }
+  }
+}
+
   ],
   "tv": [
     {
@@ -2464,7 +3655,7 @@
         "s1_power": {
           "type": "action",
           "title": "Descarte Eléctrico de Decodificador",
-          "desc": "Pedir al cliente que genere una desconexión de la corriente y lo vuelva a conectar. Cambiar de toma eléctrica si no enciende.",
+          "desc": "Pedir al cliente que genere una desconexión de la corriente y lo vuelva a conectar. Cambiar de toma eléctrica si no enciende. Que enciendia el decodificador si esta en color rojo",
           "actions": [
             { "label": "¿Encendió? (SÍ)", "nextStep": "s2_hdmi", "style": "primary" },
             { "label": "NO enciende", "nextStep": "end_visita_deco_electrico", "style": "danger" }
@@ -2531,7 +3722,785 @@
           "tipification": "TV DVB-ITV // SEÑAL RESTABLECIDA // CONFIGURACIÓN HDMI CORRECTA // CASO CERRADO"
         }
       }
+    },
+    {
+  "id": "tv-02",
+  "code": "FLOW-TV-02",
+  "category": "tv",
+  "title": "Sin Señal TVBox / Smart Speaker / Dongle",
+  "summary": "Android TV Claro, conectividad HDMI, mensaje de red y reset de fábrica.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Validar si el TVBox / Dongle está encendido",
+      "desc": "Luz led debe ser de color verde o blanco.",
+      "actions": [
+        {
+          "label": "Encendido (SÍ)",
+          "nextStep": "s2_hdmi",
+          "style": "primary"
+        },
+        {
+          "label": "Apagado / Sin luz (NO)",
+          "nextStep": "s1_power",
+          "style": "danger"
+        }
+      ]
+    },
+    "s1_power": {
+      "type": "action",
+      "title": "Descarte Eléctrico de TVBox",
+      "desc": "Desconectar de la corriente 20 segundos y cambiar de enchufe.",
+      "actions": [
+        {
+          "label": "¿Encendió? (SÍ)",
+          "nextStep": "s2_hdmi",
+          "style": "primary"
+        },
+        {
+          "label": "NO enciende",
+          "nextStep": "end_visita_tvbox",
+          "style": "danger"
+        }
+      ]
+    },
+    "s2_hdmi": {
+      "type": "action",
+      "title": "Validar HDMI y Entrada de Video",
+      "desc": "Seleccionar en el televisor la fuente correspondiente mediante el botón SOURCE o TV/AV del control remoto.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3_reset_box",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3_reset_box": {
+      "type": "action",
+      "title": "Restablecimiento de Fábrica de TVBox / Smart Speaker",
+      "desc": "Mantener presionado el botón físico de RESET durante 10 segundos en la parte inferior/trasera del TVBox hasta ver el logo de reinicio.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_tvbox",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_tvbox": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para revisión en predio",
+      "desc": "Dispositivo TVBox o Dongle sin salida de video o falla en procesador.",
+      "tipification": "TV TVBOX // SIN SEÑAL // HDMI DESCARTADO // RESET DE FÁBRICA 10S SIN ÉXITO // CAMBIO DE EQUIPO EN PREDIO"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Interfaz de Claro TVBox cargada correctamente.",
+      "tipification": "TV TVBOX // SEÑAL NORMALIZADA // INTERFAZ OPERATIVA"
     }
+  }
+},
+{
+  "id": "tv-03",
+  "code": "FLOW-TV-03",
+  "category": "tv",
+  "title": "Pixelación (DVB, ITV, TVBox)",
+  "summary": "Validación en Xpertrak DW, cable coaxial/UTP doblado, daño en conectores y reset.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Validación de Niveles en Diagnosticador (RX) y Xpertrak",
+      "desc": "¿Hay falla de niveles o degradación en portadoras de Downstream?",
+      "actions": [
+        {
+          "label": "Falla de niveles en DW (SÍ)",
+          "nextStep": "end_visita_niveles",
+          "style": "danger"
+        },
+        {
+          "label": "Niveles en rango normal (NO)",
+          "nextStep": "s2_canales",
+          "style": "primary"
+        }
+      ]
+    },
+    "end_visita_niveles": {
+      "type": "terminal",
+      "badge": "Afectación de Red Externa",
+      "badgeColor": "bg-amber-600",
+      "title": "Generar una Lls para revisión del equipo / red. Documentar y tipificar",
+      "desc": "Potencia óptica o RF fuera de norma en portadoras de TV.",
+      "tipification": "TV DVB/TVBOX // PIXELACIÓN // FALLA DE NIVELES DW EN XPERTRAK // SE PROGRAMA VISITA DE RED"
+    },
+    "s2_canales": {
+      "type": "decision",
+      "title": "¿La pixelación se presenta en todos los canales o solo en uno?",
+      "desc": "Consultar con el cliente si es un evento en vivo específico o en toda la parrilla.",
+      "actions": [
+        {
+          "label": "Solo en un canal o evento en vivo",
+          "nextStep": "end_origen_senal",
+          "style": "primary"
+        },
+        {
+          "label": "En todos los canales",
+          "nextStep": "s3_cableado",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_origen_senal": {
+      "type": "terminal",
+      "badge": "Señal de Origen Afectada",
+      "badgeColor": "bg-indigo-600",
+      "title": "Indicarle al cliente que la señal de origen viene degradada",
+      "desc": "No atribuible a daño del cliente o equipo. Documentar y tipificar.",
+      "tipification": "TV // PIXELACIÓN EN UN SOLO CANAL O EVENTO EN VIVO // SEÑAL DE ORIGEN DEGRADADA"
+    },
+    "s3_cableado": {
+      "type": "action",
+      "title": "Validación del Cableado Físico (HDMI, Coaxial, UTP)",
+      "desc": "1. Pedir al cliente que revise que el cable no esté doblado ni presionado.<br>2. Ajustar conectores RG6 a mano (sin herramientas para evitar romper la rosca).",
+      "actions": [
+        {
+          "label": "¿Falla persiste? (SÍ)",
+          "nextStep": "s5_cableado",
+          "style": "danger"
+        },
+        {
+          "label": "Al ajustar conector desapareció la falla (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s5_cableado":{
+        "type": "action",
+        "title": "Validar cable de conexion ",
+        "desc": "1. Pedirle al cliente que valide el estado del cable que va conectado al TV (HDMI/RCA).<br>2. Solicitar que valide también el cable que ingresa al decodificador (UTP/COAXIAL) que no esté doblado, presionado y los conectores estén en buen estado. ",
+        "actions" : [
+            {
+                "label": "¿El problema era por el cable ?",
+                "nextStep": "end_visita_pixelacion",
+                "style": "primary"
+            },
+            {
+                "label": "¿Falla Persiste? ",
+                "nextStep": "s4_reset_tv",
+                "style": "danger"
+
+            }
+        ]
+
+    },
+    "s4_reset_tv": {
+      "type": "action",
+      "title": "Reset Físico y Reset de Tarjeta SmartCard",
+      "desc": "Ejecutar reinicio de energía y reset con tarjeta en decos DVB.",
+      "actions": [
+        {
+          "label": "Falla Persiste",
+          "nextStep": "end_visita_pixelacion",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_pixelacion": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para revisión en predio",
+      "desc": "Pixelación masiva persistente tras descartes físicos de cableado.",
+      "tipification": "TV // PIXELACIÓN GENERAL // CONECTORES AJUSTADOS Y RESET APLICADO // AGENDA VISITA TÉCNICA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Imagen nítida en alta definición sin saltos ni pixelado.",
+      "tipification": "TV // PIXELACIÓN CORREGIDA // AJUSTE DE CABLEADO EXITOSO"
+    }
+  }
+},
+{
+  "id": "tv-04",
+  "code": "FLOW-TV-04",
+  "category": "tv",
+  "title": "Ausencia de Canales (DVB, ITV)",
+  "summary": "Line-up de canales contratados, comandos de aprovisionamiento y reset.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Validar si el canal solicitado está dentro del paquete contratado",
+      "desc": "Consultar en CRM el paquete del cliente (ej: paquete Básico, HD Plus, Premium HBO/Fox).",
+      "actions": [
+        {
+          "label": "Canal sí está en el paquete (SÍ)",
+          "nextStep": "s2_comandos",
+          "style": "primary"
+        },
+        {
+          "label": "Canal NO está en el paquete",
+          "nextStep": "end_oferta_comercial",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_oferta_comercial": {
+      "type": "terminal",
+      "badge": "Oferta Comercial",
+      "badgeColor": "bg-indigo-600",
+      "title": "Aclarar al cliente la oferta comercial. Documentar y tipificar",
+      "desc": "El canal solicitado no hace parte de su plan activo. Ofrecer upgrade o paquete premium.",
+      "tipification": "TV DVB // AUSENCIA DE CANAL // CANAL NO INCLUIDO EN PLAN CONTRATADO // SE BRINDA OFERTA COMERCIAL"
+    },
+    "s2_comandos": {
+      "type": "action",
+      "title": "Enviar Comandos desde Aprovisionamiento y Reset",
+      "desc": "Enviar refresh de canales desde plataforma RR y realizar reset con tarjeta.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3_xpertrak",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3_xpertrak": {
+      "type": "decision",
+      "title": "Validar Frecuencia Afectada en DW",
+      "desc": "¿La frecuencia por la cual viaja el canal se encuentra caída en la zona?",
+      "actions": [
+        {
+          "label": "Falla en frecuencia (SÍ)",
+          "nextStep": "end_falla_masiva_frecuencia",
+          "style": "danger"
+        },
+        {
+          "label": "Frecuencia OK (NO)",
+          "nextStep": "s5_cableado",
+          "style": "primary"
+        }
+      ]
+    },
+    "end_falla_masiva_frecuencia": {
+      "type": "terminal",
+      "badge": "Afectación Técnica en Zona",
+      "badgeColor": "bg-amber-600",
+      "title": "Generar Lls describiendo la falla encontrada (Inclinación, ingress, LTE)",
+      "desc": "Afectación de portadora de video en el nodo o cabecera.",
+      "tipification": "TV // AUSENCIA DE CANALES // FRECUENCIA AFECTADA EN DW // INCLINACIÓN / RUIDO LTE // CASO REPORTADO"
+    },
+    "s5_cableado":{
+        "type": "action",
+        "title": "Validar cable de conexion ",
+        "desc": "1. Pedirle al cliente que valide el estado del cable que va conectado al TV (HDMI/RCA).<br>2. Solicitar que valide también el cable que ingresa al decodificador (UTP/COAXIAL) que no esté doblado, presionado y los conectores estén en buen estado. ",
+        "actions" : [
+            {
+                "label": "¿El problema era por el cable ?",
+                "nextStep": "end_visita_canales",
+                "style": "primary"
+            },
+            {
+                "label": "¿Falla Persiste? ",
+                "nextStep": "s4_reset_manual",
+                "style": "danger"
+
+            }
+        ]
+
+    },
+    "s4_reset_manual": {
+      "type": "action",
+      "title": "Reset Físico y Reinicio Eléctrico",
+      "desc": "Reiniciar el equipo y forzar sincronización de line-up.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_canales",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_canales": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para revisión en predio",
+      "desc": "Decodificador no descarga la tabla de canales tras hit de aprovisionamiento.",
+      "tipification": "TV DVB // AUSENCIA DE CANALES // HIT ENVIADO SIN ÉXITO // AGENDA VISITA TÉCNICA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar",
+      "desc": "Canales habilitados y visibles en guía.",
+      "tipification": "TV DVB // CANALES RESTABLECIDOS CON ÉXITO"
+    }
+  }
+},
+{
+  "id": "tv-05",
+  "code": "FLOW-TV-05",
+  "category": "tv",
+  "title": "Ausencia de Canales (TVBox, Smart Speaker)",
+  "summary": "Validación de cuenta Claro TV, reinicio de aplicación y aprovisionamiento.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "decision",
+      "title": "Validar si el canal está en el paquete",
+      "desc": "Verificar en el portal de aprovisionamiento que el servicio IPTV tenga el perfil correcto.",
+      "actions": [
+        {
+          "label": "Canal en el plan (SÍ)",
+          "nextStep": "s2_hit",
+          "style": "primary"
+        },
+        {
+          "label": "No hace parte de la oferta (NO)",
+          "nextStep": "end_comercial_box",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_comercial_box": {
+      "type": "terminal",
+      "badge": "Oferta Comercial",
+      "badgeColor": "bg-indigo-600",
+      "title": "Aclarar al cliente la oferta comercial",
+      "desc": "Canal fuera de suscripción.",
+      "tipification": "TV TVBOX // CANAL FUERA DE SUSCRIPCIÓN // OFERTA COMERCIAL"
+    },
+    "s2_hit": {
+      "type": "action",
+      "title": "Enviar Comandos de Aprovisionamiento y Reinicio de App",
+      "desc": "1. Enviar comando desde aprovisionamiento.<br>2. Reiniciar el dispositivo (Configuración > Preferencias del dispositivo > Reiniciar).",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "s3_xpertrak",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s3_xpertrak": {
+      "type": "decision",
+      "title": "Validar Frecuencia Afectada en DW desde xpertrak y en FTTH garantizar que el servicio de @ no tenga fallas y los niveles estén correctos. ",
+      "desc": "¿La frecuencia por la cual viaja el canal se encuentra caída en la zona?",
+      "actions": [
+        {
+          "label": "Falla en frecuencia (SÍ)",
+          "nextStep": "end_visita_box_canales",
+          "style": "danger"
+        },
+        {
+          "label": "Frecuencia OK (NO)",
+          "nextStep": "s4_reset_manual",
+          "style": "primary"
+        }
+      ]
+    },
+    "s4_reset_manual": {
+      "type": "action",
+      "title": "Reset Físico y Reinicio Eléctrico",
+      "desc": "Reiniciar el equipo y forzar sincronización de line-up.",
+      "actions": [
+        {
+          "label": "Falla Persiste (SÍ)",
+          "nextStep": "end_visita_box_canales",
+          "style": "danger"
+        },
+        {
+          "label": "Falla Resuelta (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_box_canales": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para revisión en predio",
+      "desc": "Falla de autorización de paquetes en TVBox.",
+      "tipification": "TV TVBOX // AUSENCIA DE CANALES // REPROVISIONAMIENTO FALLIDO // VISITA TÉCNICA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar",
+      "desc": "Canales sincronizados en la app Claro TV.",
+      "tipification": "TV TVBOX // CANALES SINCRONIZADOS"
+    }
+  }
+},
+{
+  "id": "tv-06",
+  "code": "FLOW-TV-06",
+  "category": "tv",
+  "title": "Decodificador en Bucle (BOX TV, SMART SPEAKER, DVB)",
+  "summary": "Decodificador se reinicia continuamente o no pasa de logo Claro / Android.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Validación Física y de Cableado RJ11 / HDMI",
+      "desc": "1. Validar los niveles en diagnosticador.<br>2. Garantizar el cableado y los conectores hacia el deco.<br>3. En IPTV/TVBOX, garantizar que el conector RJ11 esté ajustado en CM y decodificador.<br>4. Realizar un reset físico del equipo. ",
+      "actions": [
+        {
+          "label": "¿Falla persiste? (SÍ)",
+          "nextStep": "s2_factory_recovery",
+          "style": "danger"
+        },
+        {
+          "label": "Deco inició normal (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "s2_factory_recovery": {
+      "type": "action",
+      "title": "Restablecimiento de Fábrica / Actualización Forzada",
+      "desc": "1. En TVBOX/SMART SPEAKER, generar un restablecimiento de fábrica del dispositivo con el botón físico de reset presionado por 10 segundos.<br>2. En los decos con tarjeta física, intentar el reset con tarjeta.<br>3. En ITV/DVB realizar una actualización manual (presionar boton encendido-DX de la corriente- CX nuevamente y soltar el botón)", 
+      "actions": [
+        {
+          "label": "¿Falla persiste en bucle? (SÍ)",
+          "nextStep": "end_visita_bucle",
+          "style": "danger"
+        },
+        {
+          "label": "Inició correctamente (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_bucle": {
+      "type": "terminal",
+      "badge": "Cambio de Equipo Requerido",
+      "badgeColor": "bg-red-600",
+      "title": "Generar Lls describiendo la falla encontrada (Deco en bucle). Documentar y tipificar",
+      "desc": "Corrupción irreversible del firmware en memoria flash.",
+      "tipification": "TV DVB/TVBOX // DECO EN BUCLE // REINICIO CONSTANTE // FORZADA ACTUALIZACIÓN Y RESET 10S SIN RESPUESTA // SE CAMBIA DECO EN TERRENO"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "El decodificador completó el arranque y muestra la imagen de televisión.",
+      "tipification": "TV // DECO DESBLOQUEADO // SISTEMA OPERATIVO RESTABLECIDO // CASO CERRADO"
+    }
+  }
+},
+{
+  "id": "tv-07",
+  "code": "FLOW-TV-07",
+  "category": "tv",
+  "title": "Decodificador Bloqueado / Congelado",
+  "summary": "Pantalla congelada, no responde a control remoto ni botones físicos del deco.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Verificación de Botones Físicos en el Deco",
+      "desc": "El deco queda en una pantalla/canal y no permite realizar cambio. Confirmar si con los botones físicos del deco (CH+, CH-) responde.",
+      "actions": [
+        {
+          "label": "Responde a botones físicos (SÍ)",
+          "nextStep": "s_falla_control",
+          "style": "primary"
+        },
+        {
+          "label": "NO responde a botones físicos (Congelado)",
+          "nextStep": "s_deco_bloqueado_total",
+          "style": "danger"
+        }
+      ]
+    },
+    "s_falla_control": {
+      "type": "action",
+      "title": "Descarte y Configuración del Control Remoto",
+      "desc": "1. Descartar daño del control remoto.<br>2. Validar con otras baterías o con otro control si el cliente tiene más decos de la misma referencia.<br>3. Si es de configuración, iniciar árbol de configuración control.",
+      "actions": [
+        {
+          "label": "¿Falla es del control remoto? (SÍ)",
+          "nextStep": "end_soporte_control",
+          "style": "primary"
+        },
+        {
+          "label": "Control está bien pero el deco no acata (NO)",
+          "nextStep": "s_deco_bloqueado_total",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_soporte_control": {
+      "type": "terminal",
+      "badge": "Configuración de Control",
+      "badgeColor": "bg-indigo-600",
+      "title": "Iniciar el soporte por el árbol de configuración de control remoto",
+      "desc": "Re-vincular presionando botones Claro + Mute o cambio de pilas AAA.",
+      "tipification": "TV // FALLA DE CONTROL REMOTO // SE VINCULA NUEVAMENTE // CASO DOCUMENTADO"
+    },
+    "s_deco_bloqueado_total": {
+      "type": "action",
+      "title": "Reset Físico y Actualización Manual",
+      "desc": "1. Realizar un reset físico del equipo.<br>2. Si tiene tarjeta, realizar reset con tarjeta.<br>3. Forzar la actualización manual.<br>4. En TVBox/Smart Speaker, reset de fábrica.",
+      "actions": [
+        {
+          "label": "¿Falla persiste congelada? (SÍ)",
+          "nextStep": "end_visita_bloqueado",
+          "style": "danger"
+        },
+        {
+          "label": "Deco descongela y responde (NO)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_bloqueado": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar Lls describiendo la falla encontrada. Documentar y tipificar",
+      "desc": "Falla en tarjeta procesadora del decodificador.",
+      "tipification": "TV // DECODIFICADOR BLOQUEADO // NO RESPONDE A BOTONES NI FORZADO // SE PROGRAMA VISITA TÉCNICA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Decodificador respondiendo ágilmente a cambios de canal.",
+      "tipification": "TV // DECODIFICADOR OPERATIVO // INTERACCIÓN NORMALIZADA"
+    }
+  }
+},
+{
+  "id": "tv-08",
+  "code": "FLOW-TV-08",
+  "category": "tv",
+  "title": "Errores de Tarjeta (DVB / TCH)",
+  "summary": "Errores E04, E06, E16, tarjeta no insertada o no autorizada en RR.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Error en tarjeta ",
+      "desc": "Comprobar si el mensaje que visualiza el cliente es (Tajeta Expirada)",
+      "actions": [
+        {
+          "label": "Presenta error en mensaje",
+          "nextStep": "end_visita_tarjeta",
+          "style": "primary"
+        },
+        {
+          "label": "No muestra ese error",
+          "nextStep": "s1_inventario",
+          "style": "secondary"
+        }
+      ]
+    },
+    "s1_inventario": {
+      "type": "action",
+      "title": "Validación de Serial de Tarjeta en RR e Inventario",
+      "desc": "Comprobar que el número de tarjeta SmartCard insertada coincida exactamente con el registrado en el inventario RR.",
+      "actions": [
+        {
+          "label": "Coinciden datos (SÍ)",
+          "nextStep": "s2_limpieza_chip",
+          "style": "primary"
+        },
+        {
+          "label": "NO coincide serial",
+          "nextStep": "end_error_asociacion",
+          "style": "danger"
+        }
+      ]
+    },
+    "end_error_asociacion": {
+      "type": "terminal",
+      "badge": "Reasociación en Sistema",
+      "badgeColor": "bg-amber-600",
+      "title": "Reasociar serial de tarjeta en el sistema RR",
+      "desc": "Actualizar la tarjeta al deco correspondiente y reenviar HIT de activación.",
+      "tipification": "TV DVB // ERROR TARJETA // SERIAL DESASOCIADO // SE REALIZA REASOCIACIÓN EN RR // HIT ENVIADO"
+    },
+    "s2_limpieza_chip": {
+      "type": "action",
+      "title": "Reset Tarjeta de deco y Reset de Fabrica",
+      "desc": "Realizar un reset con tarjeta del decodificador, garantizando que la tarjeta quede insertada de manera correcta. Si no funciona, realizar la configuración de fábrica del equipo.",
+      "actions": [
+        {
+          "label": "¿Falla persiste con error en pantalla?",
+          "nextStep": "end_visita_tarjeta",
+          "style": "danger"
+        },
+        {
+          "label": "Canales habilitados",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_tarjeta": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Generar llamada de servicio para cambio de SmartCard",
+      "desc": "Chip de tarjeta o lector interno del deco averiado.",
+      "tipification": "TV DVB // ERROR DE TARJETA SMARTCARD // CHIP LIMPIADO Y ASOCIADO // PERSISTE ERROR // CAMBIO EN PREDIO"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar y finalizar caso",
+      "desc": "Tarjeta validada y programación disponible.",
+      "tipification": "TV DVB // SMARTCARD RECONOCIDA Y OPERATIVA"
+    }
+  }
+},
+{
+  "id": "tv-09",
+  "code": "FLOW-TV-09",
+  "category": "tv",
+  "title": "Guía Sin Información (DVB / ITV / TVBox)",
+  "summary": "Sintonización del canal 1001, refresco de EPG y verificación de fecha/hora.",
+  "initialStep": "s1",
+  "steps": {
+    "s1": {
+      "type": "action",
+      "title": "Verificación de la Falla en Todos los Canales",
+      "desc": "Verificar si la falla se presenta en todos los canales o solo en algunos. Verificar si afecta la guía generar o la mini guía. ",
+      "actions": [
+        {
+          "label": "Guía vacía en todos los canales (SÍ)",
+          "nextStep": "s2_canal_epg",
+          "style": "danger"
+        },
+        {
+          "label": "Solo un canal aislado (NO)",
+          "nextStep": "s3_xpertrak",
+          "style": "primary"
+        }
+      ]
+    },
+    "s3_xpertrak": {
+      "type": "decision",
+      "title": "Validar Frecuencia Afectada en DW desde xpertrak y en FTTH garantizar que el servicio de @ no tenga fallas y los niveles estén correctos. ",
+      "desc": "1. En DVB/HFC, Validar si se presenta fallas con otros canales que están en la misma portadora.<br>2. Verificar por Xpertrak si la portadora tiene alguna afectación en DS.<br>3. En TVBOX/SMART SPEAKER, validar los niveles de diagnosticador.",
+      "actions": [
+        {
+          "label": "Falla en frecuencia (SÍ)",
+          "nextStep": "end_visita_guia",
+          "style": "danger"
+        },
+        {
+          "label": "Frecuencia OK (NO)",
+          "nextStep": "s2_canal_epg",
+          "style": "primary"
+        }
+      ]
+    },
+    "s2_canal_epg": {
+      "type": "action",
+      "title": "Sintonizar Canal de Referencia EPG (Canal 1001)",
+      "desc": "Pedir al cliente que ubique el canal 102 durante 1 minuto y luego empiece a canalear de manera ascendente. ",
+      "actions": [
+        {
+          "label": "¿Cargó la información? (SÍ)",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        },
+        {
+          "label": "Guía sigue en blanco (NO)",
+          "nextStep": "s3_reinicio_guia",
+          "style": "danger"
+        }
+      ]
+    },
+    "s3_reinicio_guia": {
+      "type": "action",
+      "title": "Reinicio Eléctrico y Comando Reparar",
+      "desc": "1. Desconectar de la corriente, reconectar.<br>2. Realizar un reset con tarjeta del decodificador, garantizando que la tarjeta quede insertada de manera correcta. y enviar refresco de tabla desde aprovisionamiento.<br>3. Si no funciona, realizar la configuración de fábrica del equipo. ",
+      "actions": [
+        {
+          "label": "Falla Persiste",
+          "nextStep": "end_visita_guia",
+          "style": "danger"
+        },
+        {
+          "label": "Guía cargada con normalidad",
+          "nextStep": "end_solucion_ok",
+          "style": "success"
+        }
+      ]
+    },
+    "end_visita_guia": {
+      "type": "terminal",
+      "badge": "Visita Técnica Requerida",
+      "badgeColor": "bg-red-600",
+      "title": "Programar llamada de servicio para revisión en predio",
+      "desc": "Decodificador con falla en memoria RAM / caché de EPG.",
+      "tipification": "TV // GUÍA SIN INFORMACIÓN // SE FORZA CANAL 1001 Y RESET SIN CARGA DE EPG // VISITA AGENDADA"
+    },
+    "end_solucion_ok": {
+      "type": "terminal",
+      "badge": "Solución Exitosa",
+      "badgeColor": "bg-emerald-600",
+      "title": "Documentar, tipificar y finalizar interacción con el cliente",
+      "desc": "Guía de programación totalmente desplegada.",
+      "tipification": "TV // GUÍA EPG DESCARGADA Y NORMALIZADA"
+    }
+  }
+}
   ],
   "ott": [
     {
@@ -2612,6 +4581,243 @@
           "tipification": "OTT // NETFLIX ACTIVADO // MEMBRESÍA VINCULADA SATISFACTORIAMENTE // FIN DE GESTIÓN"
         }
       }
-    }
+    },
+    {
+      "id": "ott-02",
+      "code": "FLOW-OTT-02",
+      "category": "ott",
+      "title": "Sin Acceso Amazon Prime",
+      "summary": "Validar registro en app Mi Claro, servicio Bundle vs Stand-Alone y link de activación.",
+      "initialStep": "s1",
+      "steps": {
+        "s1": {
+          "type": "action",
+          "title": "Validación Inicial de Registro en Mi Claro y Tipo de Plan",
+          "desc": "1. El cliente tiene que estar registrado en la app Mi Claro.<br>2. Verificar si el servicio es Bundle (facturado en paquete Claro) o Stand Alone (independiente).",
+          "actions": [
+            { "label": "¿El servicio es Bundle? (SÍ)", "nextStep": "s_bundle", "style": "primary" },
+            { "label": "NO es Bundle (Stand Alone)", "nextStep": "s_standalone", "style": "secondary" }
+          ]
+        },
+        "s_bundle": {
+          "type": "action",
+          "title": "Verificación de Correo y Link de Activación",
+          "desc": "Indicarle al cliente que revise el correo registrado donde se le envió el enlace de activación de Amazon Prime.",
+          "actions": [
+            { "label": "¿Recibió el correo? (SÍ)", "nextStep": "s_abrir_link", "style": "primary" },
+            { "label": "NO recibió el correo", "nextStep": "end_escalamiento_360", "style": "danger" }
+          ]
+        },
+        "s_abrir_link": {
+          "type": "action",
+          "title": "Apertura de Link e Instrucciones de Plataforma",
+          "desc": "Indicarle que debe abrir el enlace recibido y seguir los pasos en amazonprime.com.",
+          "actions": [
+            { "label": "¿Pudo registrarse? (SÍ)", "nextStep": "end_solucion_ok", "style": "success" },
+            { "label": "NO pudo registrarse", "nextStep": "end_escalamiento_360", "style": "danger" }
+          ]
+        },
+        "s_standalone": {
+          "type": "action",
+          "title": "Confirmación de Titularidad en App Mi Claro",
+          "desc": "Indicarle al cliente que ingrese a la app Mi Claro y proceda a realizar la confirmación de titularidad con el código PIN que se le envía a su correo.",
+          "actions": [
+            { "label": "¿Recibió el PIN? (SÍ)", "nextStep": "s_activar_membresia", "style": "primary" },
+            { "label": "NO recibió el PIN", "nextStep": "end_escalamiento_360_pin", "style": "danger" }
+          ]
+        },
+        "s_activar_membresia": {
+          "type": "action",
+          "title": "Elección de Plan e Inicio de Membresía",
+          "desc": "Indicarle que escoja el plan deseado (Básico, Estándar, Premium), configure los dispositivos de uso e inicie la membresía.",
+          "actions": [
+            { "label": "¿Pudo activar el servicio? (SÍ)", "nextStep": "end_solucion_ok", "style": "success" },
+            { "label": "NO pudo activar el servicio", "nextStep": "end_escalamiento_360", "style": "danger" }
+          ]
+        },
+        "end_escalamiento_360": {
+          "type": "terminal",
+          "badge": "Escalamiento Especializado",
+          "badgeColor": "bg-amber-600",
+          "title": "Realizar el escalamiento por Mi Asistencia 360",
+          "desc": "Se requiere: Número de cuenta, Documento de identidad, Correo registrado y Captura del mensaje de error que arroja al activar. Documentar y tipificar.",
+          "tipification": "OTT // AMAZON // ERROR DE ACTIVACIÓN / ENLACE NO LLEGA // SE ESCALA A MESA 360 CON DATOS DE TITULAR Y CAPTURA"
+        },
+        "end_escalamiento_360_pin": {
+          "type": "terminal",
+          "badge": "Escalamiento Especializado",
+          "badgeColor": "bg-amber-600",
+          "title": "Generar el escalamiento por Mi Asistencia 360 por error de activación",
+          "desc": "Falla en el envío del código OTP de confirmación.",
+          "tipification": "OTT // AMAZON STAND ALONE // PIN DE VALIDACIÓN NO RECIBIDO // SE ESCALA A ASISTENCIA 360"
+        },
+        "end_solucion_ok": {
+          "type": "terminal",
+          "badge": "Solución Exitosa",
+          "badgeColor": "bg-emerald-600",
+          "title": "Documentar, tipificar y finalizar interacción con el cliente",
+          "desc": "Cuenta de Netflix vinculada y activa para reproducir contenidos.",
+          "tipification": "OTT // AMAZON ACTIVADO // MEMBRESÍA VINCULADA SATISFACTORIAMENTE // FIN DE GESTIÓN"
+        }
+      }
+    },
+    {
+      "id": "ott-03",
+      "code": "FLOW-OTT-03",
+      "category": "ott",
+      "title": "Sin Acceso HBO Max",
+      "summary": "Validar registro en app Mi Claro, servicio Bundle vs Stand-Alone y link de activación.",
+      "initialStep": "s1",
+      "steps": {
+        "s1": {
+          "type": "action",
+          "title": "Validación Inicial de Registro en Mi Claro y Tipo de Plan",
+          "desc": "1. El cliente tiene que estar registrado en la app Mi Claro.<br>2. Verificar si el servicio es Bundle (facturado en paquete Claro) o Stand Alone (independiente).",
+          "actions": [
+            { "label": "¿El servicio es Bundle? (SÍ)", "nextStep": "s_bundle", "style": "primary" },
+            { "label": "NO es Bundle (Stand Alone)", "nextStep": "s_standalone", "style": "secondary" }
+          ]
+        },
+        "s_bundle": {
+          "type": "action",
+          "title": "Verificación de Correo y Link de Activación",
+          "desc": "Indicarle al cliente que revise el correo registrado donde se le envió el enlace de activación de HBO Max.",
+          "actions": [
+            { "label": "¿Recibió el correo? (SÍ)", "nextStep": "s_abrir_link", "style": "primary" },
+            { "label": "NO recibió el correo", "nextStep": "end_escalamiento_360", "style": "danger" }
+          ]
+        },
+        "s_abrir_link": {
+          "type": "action",
+          "title": "Apertura de Link e Instrucciones de Plataforma",
+          "desc": "Indicarle que debe abrir el enlace recibido y seguir los pasos en hbomax.com.",
+          "actions": [
+            { "label": "¿Pudo registrarse? (SÍ)", "nextStep": "end_solucion_ok", "style": "success" },
+            { "label": "NO pudo registrarse", "nextStep": "end_escalamiento_360", "style": "danger" }
+          ]
+        },
+        "s_standalone": {
+          "type": "action",
+          "title": "Confirmación de Titularidad en App Mi Claro",
+          "desc": "Indicarle al cliente que ingrese a la app Mi Claro y proceda a realizar la confirmación de titularidad con el código PIN que se le envía a su correo.",
+          "actions": [
+            { "label": "¿Recibió el PIN? (SÍ)", "nextStep": "s_activar_membresia", "style": "primary" },
+            { "label": "NO recibió el PIN", "nextStep": "end_escalamiento_360_pin", "style": "danger" }
+          ]
+        },
+        "s_activar_membresia": {
+          "type": "action",
+          "title": "Elección de Plan e Inicio de Membresía",
+          "desc": "Indicarle que escoja el plan deseado (Básico, Estándar, Premium), configure los dispositivos de uso e inicie la membresía.",
+          "actions": [
+            { "label": "¿Pudo activar el servicio? (SÍ)", "nextStep": "end_solucion_ok", "style": "success" },
+            { "label": "NO pudo activar el servicio", "nextStep": "end_escalamiento_360", "style": "danger" }
+          ]
+        },
+        "end_escalamiento_360": {
+          "type": "terminal",
+          "badge": "Escalamiento Especializado",
+          "badgeColor": "bg-amber-600",
+          "title": "Realizar el escalamiento por Mi Asistencia 360",
+          "desc": "Se requiere: Número de cuenta, Documento de identidad, Correo registrado y Captura del mensaje de error que arroja al activar. Documentar y tipificar.",
+          "tipification": "OTT // HBO MAX // ERROR DE ACTIVACIÓN / ENLACE NO LLEGA // SE ESCALA A MESA 360 CON DATOS DE TITULAR Y CAPTURA"
+        },
+        "end_escalamiento_360_pin": {
+          "type": "terminal",
+          "badge": "Escalamiento Especializado",
+          "badgeColor": "bg-amber-600",
+          "title": "Generar el escalamiento por Mi Asistencia 360 por error de activación",
+          "desc": "Falla en el envío del código OTP de confirmación.",
+          "tipification": "OTT // HBO MAX STAND ALONE // PIN DE VALIDACIÓN NO RECIBIDO // SE ESCALA A ASISTENCIA 360"
+        },
+        "end_solucion_ok": {
+          "type": "terminal",
+          "badge": "Solución Exitosa",
+          "badgeColor": "bg-emerald-600",
+          "title": "Documentar, tipificar y finalizar interacción con el cliente",
+          "desc": "Cuenta de Netflix vinculada y activa para reproducir contenidos.",
+          "tipification": "OTT // HBO MAX ACTIVADO // MEMBRESÍA VINCULADA SATISFACTORIAMENTE // FIN DE GESTIÓN"
+        }
+      }
+    },
+    {
+      "id": "ott-04",
+      "code": "FLOW-OTT-04",
+      "category": "ott",
+      "title": "Sin Acceso Disney+",
+      "summary": "Validar registro en app Mi Claro, servicio Bundle vs Stand-Alone y link de activación.",
+      "initialStep": "s1",
+      "steps": {
+        "s1": {
+          "type": "action",
+          "title": "Validación Inicial de Registro en Mi Claro y Tipo de Plan",
+          "desc": "1. El cliente tiene que estar registrado en la app Mi Claro.<br>2. Verificar si el servicio es Bundle (facturado en paquete Claro) o Stand Alone (independiente).",
+          "actions": [
+            { "label": "¿El servicio es Bundle? (SÍ)", "nextStep": "s_bundle", "style": "primary" },
+            { "label": "NO es Bundle (Stand Alone)", "nextStep": "s_standalone", "style": "secondary" }
+          ]
+        },
+        "s_bundle": {
+          "type": "action",
+          "title": "Verificación de Correo y Link de Activación",
+          "desc": "Indicarle al cliente que revise el correo registrado donde se le envió el enlace de activación de Disney+",
+          "actions": [
+            { "label": "¿Recibió el correo? (SÍ)", "nextStep": "s_abrir_link", "style": "primary" },
+            { "label": "NO recibió el correo", "nextStep": "end_escalamiento_360", "style": "danger" }
+          ]
+        },
+        "s_abrir_link": {
+          "type": "action",
+          "title": "Apertura de Link e Instrucciones de Plataforma",
+          "desc": "Indicarle que debe abrir el enlace recibido y seguir los pasos en disney+.com.",
+          "actions": [
+            { "label": "¿Pudo registrarse? (SÍ)", "nextStep": "end_solucion_ok", "style": "success" },
+            { "label": "NO pudo registrarse", "nextStep": "end_escalamiento_360", "style": "danger" }
+          ]
+        },
+        "s_standalone": {
+          "type": "action",
+          "title": "Confirmación de Titularidad en App Mi Claro",
+          "desc": "Indicarle al cliente que ingrese a la app Mi Claro y proceda a realizar la confirmación de titularidad con el código PIN que se le envía a su correo.",
+          "actions": [
+            { "label": "¿Recibió el PIN? (SÍ)", "nextStep": "s_activar_membresia", "style": "primary" },
+            { "label": "NO recibió el PIN", "nextStep": "end_escalamiento_360_pin", "style": "danger" }
+          ]
+        },
+        "s_activar_membresia": {
+          "type": "action",
+          "title": "Elección de Plan e Inicio de Membresía",
+          "desc": "Indicarle que escoja el plan deseado (Básico, Estándar, Premium), configure los dispositivos de uso e inicie la membresía.",
+          "actions": [
+            { "label": "¿Pudo activar el servicio? (SÍ)", "nextStep": "end_solucion_ok", "style": "success" },
+            { "label": "NO pudo activar el servicio", "nextStep": "end_escalamiento_360", "style": "danger" }
+          ]
+        },
+        "end_escalamiento_360": {
+          "type": "terminal",
+          "badge": "Escalamiento Especializado",
+          "badgeColor": "bg-amber-600",
+          "title": "Realizar el escalamiento por Mi Asistencia 360",
+          "desc": "Se requiere: Número de cuenta, Documento de identidad, Correo registrado y Captura del mensaje de error que arroja al activar. Documentar y tipificar.",
+          "tipification": "OTT // DISNEY+ // ERROR DE ACTIVACIÓN / ENLACE NO LLEGA // SE ESCALA A MESA 360 CON DATOS DE TITULAR Y CAPTURA"
+        },
+        "end_escalamiento_360_pin": {
+          "type": "terminal",
+          "badge": "Escalamiento Especializado",
+          "badgeColor": "bg-amber-600",
+          "title": "Generar el escalamiento por Mi Asistencia 360 por error de activación",
+          "desc": "Falla en el envío del código OTP de confirmación.",
+          "tipification": "OTT // DISNEY+ STAND ALONE // PIN DE VALIDACIÓN NO RECIBIDO // SE ESCALA A ASISTENCIA 360"
+        },
+        "end_solucion_ok": {
+          "type": "terminal",
+          "badge": "Solución Exitosa",
+          "badgeColor": "bg-emerald-600",
+          "title": "Documentar, tipificar y finalizar interacción con el cliente",
+          "desc": "Cuenta de Netflix vinculada y activa para reproducir contenidos.",
+          "tipification": "OTT // DISNEY+ ACTIVADO // MEMBRESÍA VINCULADA SATISFACTORIAMENTE // FIN DE GESTIÓN"
+        }
+      }
+    }   
   ]
 }
