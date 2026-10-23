@@ -1967,12 +1967,12 @@
       "desc": "Modificar canales de frecuencia WiFi y verificar conexión entre equipos mesh.",
       "actions": [
         {
-          "label": "Falla Persiste (SÍ)",
+          "label": "Falla Persiste",
           "nextStep": "s3",
           "style": "danger"
         },
         {
-          "label": "Falla Resuelta (NO)",
+          "label": "Falla Resuelta",
           "nextStep": "end_solucion_ok",
           "style": "success"
         }
